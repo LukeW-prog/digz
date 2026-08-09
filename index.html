@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DIGS — What could your spare room earn?</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      background: #fdf8ed;
+      font-family: system-ui, sans-serif;
+      color: #1c1917;
+    }
+
+    .card {
+      max-width: 420px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    h1 { font-size: 26px; margin: 0 0 8px; }
+
+    .sub { color: #57534e; margin: 0 0 24px; }
+
+    label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+
+    select, button {
+      width: 100%;
+      min-height: 48px;
+      font-size: 16px;
+      border-radius: 12px;
+      padding: 0 14px;
+    }
+
+    select { border: 1px solid #d6d3d1; background: #fff; margin-bottom: 16px; }
+
+    button {
+      border: 0;
+      background: #15803d;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #result {
+      display: none;
+      margin-top: 24px;
+      padding: 20px;
+      background: #f0fdf4;
+      border-radius: 12px;
+    }
+
+    #amount { font-size: 30px; font-weight: 700; color: #14532d; margin: 4px 0 12px; }
+
+    .note { font-size: 14px; color: #166534; margin: 0; }
+
+    .disclaimer { max-width: 420px; margin: 16px auto 0; font-size: 12px; color: #78716c; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>What could your spare room earn?</h1>
+    <p class="sub">Free to check. No commitment.</p>
+
+    <label for="town">Your town</label>
+    <select id="town">
+      <option value="Maynooth">Maynooth</option>
+    </select>
+
+    <button id="check">See my estimate</button>
+
+    <div id="result">
+      <p class="note">Rooms in Maynooth are earning</p>
+      <p id="amount">€450–€900 <span style="font-size:16px;font-weight:500">/ month</span></p>
+      <p class="note">Up to €14,000 of that is tax-free under the Rent-a-Room scheme.</p>
+    </div>
+  </div>
+
+  <p class="disclaimer">Sample prototype — figures are indicative, not live data.</p>
+
+  <script>
+    document.getElementById('check').addEventListener('click', function () {
+      document.getElementById('result').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
