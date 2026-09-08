@@ -1,0 +1,54 @@
+'use server'
+
+import { REPORT_REASON, type ReportReason } from '@/lib/types'
+import { createClient } from '@/lib/supabase/server'
+
+export type ReportState = {
+  ok?: boolean
+  error?: string
+}
+
+/**
+ * Notice-and-action, per DSA Article 16.
+ *
+ * Anyone can report, including people without an account and without leaving
+ * an email address. Requiring either would put friction in front of the safety
+ * mechanism, which is the wrong trade.
+ *
+ * Reports are write-only for the public: the RLS policy allows insert and
+ * nothing else, so nobody can read back what others have reported.
+ */
+export async function submitReport(
+  _prev: ReportState,
+  formData: FormData,
+): Promise<ReportState> {
+  const reason = String(formData.get('reason') ?? '') as ReportReason
+  if (!REPORT_REASON.includes(reason)) {
+    return { error: 'Choose what is wrong with the listing.' }
+  }
+
+  const details = String(formData.get('details') ?? '').trim()
+  const reporterEmail = String(formData.get('reporterEmail') ?? '').trim()
+  const listingId = String(formData.get('listingId') ?? '').trim()
+
+  if (details.length > 2000) {
+    return { error: 'Please keep it under 2000 characters.' }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from('reports').insert({
+    listing_id: listingId || null,
+    reason,
+    details: details || null,
+    reporter_email: reporterEmail || null,
+  })
+
+  if (error) {
+    return {
+      error:
+        'We could not save that. Please email us directly so it does not get lost.',
+    }
+  }
+
+  return { ok: true }
+}

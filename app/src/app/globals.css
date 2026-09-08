@@ -1,26 +1,106 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+  Digs design tokens.
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  Deliberately plain. The differentiator is that search works and pages load
+  fast on a bad connection, not that the site is decorated. Contrast targets
+  WCAG 2.1 AA throughout, per feasibility.md.
+*/
+
+:root {
+  --bg: #fbfaf8;
+  --surface: #ffffff;
+  --border: #e3ded6;
+  --text: #1c1a17;
+  --text-muted: #5c574f;
+  --brand: #1f5c4c;
+  --brand-hover: #17453a;
+  --brand-tint: #eaf2ef;
+  --danger: #a4243b;
+  --danger-tint: #fdf0f2;
+  --warning-tint: #fdf6e7;
+  --warning-border: #e6cf9a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #14130f;
+    --surface: #1d1b17;
+    --border: #35322b;
+    --text: #f3f0ea;
+    --text-muted: #a8a297;
+    --brand: #6fbfa4;
+    --brand-hover: #8ad0b7;
+    --brand-tint: #1a2f28;
+    --danger: #f08a9c;
+    --danger-tint: #2c1a1e;
+    --warning-tint: #2a2414;
+    --warning-border: #5b4d2a;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-tint: var(--brand-tint);
+  --color-danger: var(--danger);
+  --color-danger-tint: var(--danger-tint);
+  --color-warning-tint: var(--warning-tint);
+  --color-warning-border: var(--warning-border);
+  --font-sans: var(--font-geist-sans);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* A visible focus ring on everything interactive. Non-negotiable for AA. */
+@layer base {
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .field-label {
+    @apply block text-sm font-medium text-text mb-1.5;
+  }
+
+  .field-hint {
+    @apply text-sm text-muted mb-1.5;
+  }
+
+  .field-input {
+    @apply w-full rounded-lg border border-border bg-surface px-3 py-2.5
+           text-base text-text placeholder:text-muted
+           focus:border-brand focus:outline-none;
+  }
+
+  .field-error {
+    @apply mt-1.5 text-sm font-medium text-danger;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-brand
+           px-5 py-3 text-base font-semibold text-white
+           hover:bg-brand-hover disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg border
+           border-border bg-surface px-5 py-3 text-base font-medium
+           text-text hover:bg-brand-tint;
+  }
+
+  .card {
+    @apply rounded-xl border border-border bg-surface;
+  }
 }
