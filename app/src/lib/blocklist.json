@@ -1,0 +1,162 @@
+{
+  "_readme": [
+    "Phrases that make the listing form refuse a submission.",
+    "Built from IHREC v Daft (WRC 2019) and the ten protected grounds under the Equal Status Acts.",
+    "Matching rules: lowercase the input, collapse all whitespace to single spaces, strip punctuation, then check each phrase as a substring on word boundaries.",
+    "Every hit is logged to blocklist_hits with the category so the list can be extended from real attempts.",
+    "The form must tell the host which phrase tripped and why. Never a silent reject.",
+    "Structured fields (schedule, meals, room type, lifestyle rules) carry the facts. Free text is for describing the house, not the lodger.",
+    "This list must be live before the first listing publishes. mvp.md, non-negotiable."
+  ],
+  "version": "2026-09-08",
+  "categories": [
+    {
+      "category": "gender",
+      "ground": "Gender - Equal Status Acts s.3(2)(a)",
+      "message": "Listings cannot state a gender preference. Describe the house, not who you want in it.",
+      "phrases": [
+        "female only", "females only", "female student only", "female students only",
+        "male only", "males only", "male student only", "male students only",
+        "girl only", "girls only", "boy only", "boys only",
+        "suit a girl", "suit a boy", "suit girl", "suit boy",
+        "suit female", "suit male", "would suit a female", "would suit a male",
+        "ladies only", "lady only", "gents only", "gentleman only",
+        "women only", "woman only", "men only", "man only",
+        "no males", "no females", "no men", "no women", "no boys", "no girls",
+        "female preferred", "male preferred", "girl preferred", "boy preferred",
+        "female lodger", "male lodger", "female tenant", "male tenant",
+        "prefer a girl", "prefer a boy", "prefer female", "prefer male"
+      ]
+    },
+    {
+      "category": "race_nationality",
+      "ground": "Race, colour, nationality, ethnic or national origin - s.3(2)(h)",
+      "message": "Listings cannot refer to nationality, race or ethnic background.",
+      "phrases": [
+        "irish only", "irish students only", "irish student only", "irish preferred",
+        "no foreigners", "no foreign", "no non nationals", "non nationals",
+        "no international", "no international students", "international students only",
+        "no erasmus", "erasmus only",
+        "english speaking only", "english speakers only", "must speak english", "fluent english only",
+        "no africans", "no asians", "no eastern europeans", "no polish", "no brazilians",
+        "no indians", "no chinese", "no nigerians",
+        "no travellers", "no traveller", "settled only", "settled community only",
+        "locals only", "local only", "local students only"
+      ]
+    },
+    {
+      "category": "family_status",
+      "ground": "Family status - s.3(2)(c)",
+      "message": "Listings cannot exclude people on the basis of family or parental status.",
+      "phrases": [
+        "no children", "no kids", "no babies", "no families", "no family",
+        "no single parents", "no single mothers", "no single fathers",
+        "childless only", "no dependants", "no dependents",
+        "professionals only", "professional only", "professional person only",
+        "suit professional", "suit professionals", "suit a professional",
+        "would suit professional", "would suit professionals",
+        "would suit young professional", "would suit young professionals",
+        "young professional only", "young professionals only",
+        "suit family or professionals", "suit family or professional",
+        "professionals preferred", "professional preferred"
+      ]
+    },
+    {
+      "category": "civil_status",
+      "ground": "Civil status - s.3(2)(b)",
+      "message": "Listings cannot refer to marital or civil status.",
+      "phrases": [
+        "single person only", "singles only", "single only",
+        "no couples", "couples only", "married only", "married couple only",
+        "no unmarried", "unmarried only", "no divorced", "no separated"
+      ]
+    },
+    {
+      "category": "age",
+      "ground": "Age - s.3(2)(f)",
+      "message": "Listings cannot state an age requirement beyond the site-wide 18+ rule.",
+      "phrases": [
+        "mature student only", "mature students only", "mature only",
+        "mature person only", "mature preferred",
+        "young professional", "young professionals", "young person only", "young people only",
+        "under 25", "under 30", "under 35", "under 40",
+        "over 25", "over 30", "over 35", "over 40", "over 50",
+        "25 or under", "30 or under", "18 to 25", "18 25", "20 to 30", "20 30",
+        "no older", "no old", "no elderly", "no pensioners",
+        "students only", "student only", "no students", "postgrad only", "postgraduate only",
+        "first years only", "first year only", "no first years", "no first year",
+        "age 20", "age 25", "age 30", "aged 20", "aged 25", "aged 30",
+        "20s only", "twenties only", "30s only", "thirties only"
+      ]
+    },
+    {
+      "category": "religion",
+      "ground": "Religion - s.3(2)(e)",
+      "message": "Listings cannot name a religion as a requirement or exclusion.",
+      "phrases": [
+        "catholic only", "catholics only", "catholic preferred", "practising catholic",
+        "christian only", "christians only", "christian preferred", "christian home only",
+        "no muslims", "muslim only", "muslims only", "no islam",
+        "no jews", "jewish only", "no jewish",
+        "no hindus", "hindu only", "no sikhs",
+        "no atheists", "religious only", "church going only", "churchgoing only",
+        "god fearing", "practising christian"
+      ]
+    },
+    {
+      "category": "disability",
+      "ground": "Disability - s.3(2)(g)",
+      "message": "Listings cannot exclude people on grounds of disability. Describe the house instead, e.g. the room is upstairs.",
+      "phrases": [
+        "no disabled", "no disability", "no disabilities", "able bodied only", "able bodied",
+        "no wheelchair", "no wheelchairs", "no mental health", "no mental illness",
+        "no depression", "no anxiety", "no autism", "no autistic", "no adhd",
+        "must be healthy", "healthy only", "no medical conditions", "no health issues"
+      ]
+    },
+    {
+      "category": "sexual_orientation",
+      "ground": "Sexual orientation - s.3(2)(d)",
+      "message": "Listings cannot refer to sexual orientation.",
+      "phrases": [
+        "no gays", "no gay", "no lesbians", "no lesbian", "no lgbt", "no lgbtq",
+        "straight only", "heterosexual only", "no homosexuals", "no homosexual",
+        "no trans", "no transgender", "no queer"
+      ]
+    },
+    {
+      "category": "housing_assistance",
+      "ground": "Housing assistance - s.3(3B)",
+      "message": "Listings cannot refuse HAP, rent supplement or any state housing payment.",
+      "phrases": [
+        "no hap", "hap not accepted", "hap not considered", "no hap accepted",
+        "no rent allowance", "rent allowance not accepted", "no rent supplement",
+        "rent supplement not accepted", "no social welfare", "no welfare",
+        "no dss", "dss not accepted", "no dole", "working only", "must be working",
+        "employed only", "no unemployed", "no social housing",
+        "no rent assistance", "no housing assistance", "no ras"
+      ]
+    },
+    {
+      "category": "daft_case",
+      "ground": "Specifically named in IHREC v Daft Media (WRC 2019)",
+      "message": "This wording was named in the Daft case. Listings cannot require references. The site handles verification.",
+      "phrases": [
+        "reference required", "references required", "references essential",
+        "reference essential", "must have references", "must provide references",
+        "references needed", "work reference", "work references",
+        "employer reference", "employer references",
+        "landlord reference", "landlord references", "previous landlord reference"
+      ]
+    }
+  ],
+  "_false_positive_notes": [
+    "no pets is NOT a protected ground. Pets are a lifestyle rule and a structured field.",
+    "no smoking is NOT a protected ground. Structured field.",
+    "students only is blocked under age because the WRC treats it as an age proxy. The whole site is for students, so hosts do not need to say it. If this causes too many hits, revisit.",
+    "professionals only is blocked but Mon-Fri workers are welcome on the site. Hosts select schedule=mon_fri as a structured field. They cannot describe the person they want in prose.",
+    "young on its own is not blocked, only young professional and young person only. A host writing young family home would pass. Monitor blocklist_hits and tighten if needed.",
+    "Word-boundary matching means no kids matches no kids but not no kidding. Check the matcher handles this.",
+    "Phrases about the HOUSE are always fine: quiet house, family home, we have a dog, room is upstairs, no parking."
+  ]
+}
