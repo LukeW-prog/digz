@@ -27,7 +27,7 @@ export function ListingForm() {
   return (
     <form action={formAction} className="space-y-8" noValidate>
       {state.message && (
-        <p role="alert" className="card border-danger bg-danger-tint p-4 text-danger">
+        <p role="alert" className="panel border-danger bg-danger-wash p-4 text-danger">
           {state.message}
         </p>
       )}
@@ -69,7 +69,7 @@ export function ListingForm() {
             In euro, per week. Digs around Maynooth is usually 120 to 150.
           </p>
           <div className="flex items-center gap-2">
-            <span aria-hidden className="text-lg text-muted">
+            <span aria-hidden className="text-lg text-soft">
               €
             </span>
             <input
@@ -84,7 +84,7 @@ export function ListingForm() {
               aria-invalid={!!err('pricePerWeek')}
               className="field-input max-w-32"
             />
-            <span className="text-muted">a week</span>
+            <span className="text-soft">a week</span>
           </div>
           {err('pricePerWeek') && (
             <p className="field-error" role="alert">
@@ -161,12 +161,12 @@ export function ListingForm() {
         <div>
           <label className="field-label" htmlFor="description">
             Describe the house{' '}
-            <span className="font-normal text-muted">(optional)</span>
+            <span className="font-normal text-soft">(optional)</span>
           </label>
 
-          <div className="mb-2 rounded-lg border border-warning-border bg-warning-tint p-3 text-sm">
+          <div className="mb-2 rounded-lg border border-alert-rule bg-alert-wash p-3 text-sm">
             <p className="font-medium">Describe the house, not the person.</p>
-            <p className="mt-1 text-muted">
+            <p className="mt-1 text-soft">
               It is against the law to publish an advert that states a
               preference on gender, nationality, race, religion, age, family
               status or housing assistance. The form will not accept it. This
@@ -190,7 +190,7 @@ export function ListingForm() {
 
           <p
             id="description-count"
-            className="mt-1 text-sm text-muted"
+            className="mt-1 text-sm text-soft"
             aria-live="polite"
           >
             {remaining} characters left
@@ -205,7 +205,7 @@ export function ListingForm() {
           {state.blocklistHits && state.blocklistHits.length > 0 && (
             <div
               role="alert"
-              className="mt-3 rounded-lg border border-danger bg-danger-tint p-4"
+              className="mt-3 rounded-lg border border-danger bg-danger-wash p-4"
             >
               <p className="font-semibold text-danger">
                 Please edit these {state.blocklistHits.length === 1 ? 'words' : 'phrases'} before posting
@@ -216,11 +216,11 @@ export function ListingForm() {
                     <p className="font-medium">
                       &ldquo;{hit.phrase}&rdquo;
                     </p>
-                    <p className="text-sm text-muted">{hit.message}</p>
+                    <p className="text-sm text-soft">{hit.message}</p>
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 text-sm text-muted">
+              <p className="mt-3 text-sm text-soft">
                 Your listing has not been posted. Edit the text above and try
                 again.
               </p>
@@ -229,11 +229,15 @@ export function ListingForm() {
         </div>
       </Section>
 
-      <div className="flex items-center gap-4 border-t border-border pt-6">
-        <button type="submit" className="btn-primary" disabled={pending}>
+      <div className="flex flex-col gap-3 border-t border-rule pt-6 sm:flex-row sm:items-center sm:gap-4">
+        <button
+          type="submit"
+          className="btn-primary w-full whitespace-nowrap sm:w-auto"
+          disabled={pending}
+        >
           {pending ? 'Posting…' : 'Post the listing'}
         </button>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-soft">
           It goes live straight away. You can edit or remove it any time.
         </p>
       </div>
@@ -256,7 +260,7 @@ function Section({
     <section className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">{title}</h2>
-        {hint && <p className="mt-1 text-sm text-muted">{hint}</p>}
+        {hint && <p className="mt-1 text-sm text-soft">{hint}</p>}
       </div>
       {children}
     </section>
@@ -352,7 +356,7 @@ function Check({ name, label }: { name: string; label: string }) {
       <input
         type="checkbox"
         name={name}
-        className="size-5 rounded border-border accent-brand"
+        className="size-5 rounded border-rule accent-accent"
       />
       {label}
     </label>

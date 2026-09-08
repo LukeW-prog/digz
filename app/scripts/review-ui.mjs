@@ -1,0 +1,132 @@
+/**
+ * UI review harness.
+ *
+ * Screenshots every route at a phone and a desktop width, and runs an
+ * accessibility audit against each one. Output goes to .ui-review/, which is
+ * git ignored.
+ *
+ *   npm run review:ui              # needs the dev server already running
+ *   npm run review:ui -- --dark    # same, in dark mode
+ *
+ * Two things are being checked, and they catch different problems.
+ * Screenshots show whether a page reads well: hierarchy, spacing, whether the
+ * important thing is the thing your eye lands on. The axe audit measures what
+ * an eye cannot, notably colour contrast ratios against WCAG 2.1 AA, which
+ * feasibility.md commits us to.
+ */
+
+import { chromium } from 'playwright'
+import AxeBuilder from '@axe-core/playwright'
+import { mkdir, writeFile } from 'node:fs/promises'
+
+const BASE = process.env.REVIEW_BASE_URL ?? 'http://localhost:3000'
+const OUT = '.ui-review'
+const DARK = process.argv.includes('--dark')
+
+const ROUTES = [
+  ['home', '/'],
+  ['home-filtered', '/?schedule=mon_fri&meals=1&maxWalk=20'],
+  ['home-empty', '/?maxPrice=45'],
+  ['listing', '/listing/sample-1'],
+  ['listing-stale', '/listing/sample-4'],
+  ['host-new', '/host/new'],
+  ['report', '/report'],
+  ['safety', '/safety'],
+  ['what-digs-is', '/what-digs-is'],
+]
+
+/** A phone first, because mvp.md says the listing form must work on one. */
+const VIEWPORTS = [
+  ['mobile', { width: 390, height: 844 }],
+  ['desktop', { width: 1280, height: 900 }],
+]
+
+const browser = await chromium.launch()
+const findings = []
+
+for (const [vpName, viewport] of VIEWPORTS) {
+  const context = await browser.newContext({
+    viewport,
+    deviceScaleFactor: 2,
+    colorScheme: DARK ? 'dark' : 'light',
+    reducedMotion: 'reduce',
+  })
+
+  for (const [name, path] of ROUTES) {
+    const page = await context.newPage()
+
+    const consoleErrors = []
+    page.on('console', (m) => {
+      if (m.type() === 'error') consoleErrors.push(m.text())
+    })
+
+    await page.goto(`${BASE}${path}`, { waitUntil: 'networkidle' })
+
+    const dir = `${OUT}/${DARK ? 'dark' : 'light'}/${vpName}`
+    await mkdir(dir, { recursive: true })
+    await page.screenshot({ path: `${dir}/${name}.png`, fullPage: true })
+
+    // Horizontal overflow is the single commonest mobile bug and is easy to
+    // miss in a full-page screenshot, so measure it rather than look for it.
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    )
+
+    const axe = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze()
+
+    findings.push({
+      route: path,
+      viewport: vpName,
+      overflowPx: overflow,
+      consoleErrors,
+      violations: axe.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        help: v.help,
+        nodes: v.nodes.slice(0, 4).map((n) => ({
+          target: n.target.join(' '),
+          summary: n.failureSummary?.split('\n').slice(0, 3).join(' '),
+        })),
+      })),
+    })
+
+    await page.close()
+  }
+
+  await context.close()
+}
+
+await browser.close()
+await writeFile(`${OUT}/findings.json`, JSON.stringify(findings, null, 2))
+
+/* ------------------------------------------------------------ the report */
+
+let problems = 0
+for (const f of findings) {
+  const lines = []
+
+  if (f.overflowPx > 0) {
+    lines.push(`  page scrolls sideways by ${f.overflowPx}px`)
+  }
+  for (const e of f.consoleErrors) {
+    lines.push(`  console error: ${e}`)
+  }
+  for (const v of f.violations) {
+    lines.push(`  [${v.impact}] ${v.id}: ${v.help}`)
+    for (const n of v.nodes) lines.push(`      ${n.target}`)
+  }
+
+  if (lines.length) {
+    problems += lines.length
+    console.log(`\n${f.route}  (${f.viewport})`)
+    console.log(lines.join('\n'))
+  }
+}
+
+console.log(
+  problems === 0
+    ? `\nNo accessibility violations, overflow or console errors across ${findings.length} page renders.`
+    : `\n${problems} things to look at. Screenshots in ${OUT}/`,
+)

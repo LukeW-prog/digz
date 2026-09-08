@@ -19,7 +19,7 @@ export default function WhatDigsIsPage() {
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="text-3xl font-bold tracking-tight">What digs is</h1>
 
-      <p className="mt-4 text-lg text-muted">
+      <p className="mt-4 text-lg text-soft">
         Digs means renting a room in someone&rsquo;s home while they live there
         too. It is usually cheaper than a house share, often includes meals, and
         frequently runs Monday to Friday. It also comes with far fewer legal
@@ -69,7 +69,7 @@ export default function WhatDigsIsPage() {
         <li>Guests, kitchen use, laundry, and quiet hours</li>
         <li>What happens over Christmas and Easter breaks</li>
       </ul>
-      <p className="mt-3 text-muted">
+      <p className="mt-3 text-soft">
         The Government publishes a free sample agreement at{' '}
         <a
           className="underline"
@@ -89,7 +89,7 @@ export default function WhatDigsIsPage() {
         parents can claim it if they pay your rent. Only 45% of digs students
         knew about it, so it is worth checking.
       </p>
-      <p className="mt-3 text-muted">
+      <p className="mt-3 text-soft">
         Your host may be using Rent-a-Room relief, which lets them earn up to
         €14,000 a year tax free. That is their affair, but it is why many hosts
         prefer Monday to Friday arrangements.
@@ -125,7 +125,7 @@ export default function WhatDigsIsPage() {
         <li>An Garda Síochána, for anything criminal</li>
       </ul>
 
-      <p className="mt-10 rounded-lg border border-border bg-surface p-4 text-sm text-muted">
+      <p className="mt-10 rounded-lg border border-rule bg-raised p-4 text-sm text-soft">
         This page points you to official sources and explains them in plain
         English. It is not legal advice. Last reviewed 8 September 2026.
       </p>
@@ -147,9 +147,9 @@ function Point({
   children: React.ReactNode
 }) {
   return (
-    <li className="card p-4">
+    <li className="panel p-4">
       <h3 className="font-semibold">{title}</h3>
-      <p className="mt-1 text-sm text-muted">{children}</p>
+      <p className="mt-1 text-sm text-soft">{children}</p>
     </li>
   )
 }

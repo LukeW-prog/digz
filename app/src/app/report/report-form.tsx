@@ -15,13 +15,13 @@ export function ReportForm({ listingId }: { listingId?: string }) {
 
   if (state.ok) {
     return (
-      <div className="card border-brand bg-brand-tint p-5">
+      <div className="panel border-accent bg-accent-wash p-5">
         <h2 className="text-lg font-semibold">Thank you, we have it</h2>
         <p className="mt-2">
           We look at reports daily. If you left an email address we will tell
           you what we decided and why.
         </p>
-        <p className="mt-3 text-sm text-muted">
+        <p className="mt-3 text-sm text-soft">
           If money has changed hands, or you feel unsafe, please also contact An
           Garda Síochána. Do not wait for us.
         </p>
@@ -33,7 +33,7 @@ export function ReportForm({ listingId }: { listingId?: string }) {
   }
 
   return (
-    <form action={formAction} className="card p-5">
+    <form action={formAction} className="panel p-5">
       {listingId && (
         <input type="hidden" name="listingId" value={listingId} />
       )}
@@ -47,7 +47,7 @@ export function ReportForm({ listingId }: { listingId?: string }) {
               name="reason"
               value={reason}
               required
-              className="size-4 accent-brand"
+              className="size-4 accent-accent"
             />
             {REPORT_REASON_LABEL[reason]}
           </label>
@@ -57,7 +57,7 @@ export function ReportForm({ listingId }: { listingId?: string }) {
       <div className="mt-5">
         <label className="field-label" htmlFor="details">
           Tell us what happened{' '}
-          <span className="font-normal text-muted">(optional)</span>
+          <span className="font-normal text-soft">(optional)</span>
         </label>
         <textarea
           id="details"
@@ -72,7 +72,7 @@ export function ReportForm({ listingId }: { listingId?: string }) {
       <div className="mt-5">
         <label className="field-label" htmlFor="reporterEmail">
           Your email{' '}
-          <span className="font-normal text-muted">(optional)</span>
+          <span className="font-normal text-soft">(optional)</span>
         </label>
         <p className="field-hint">
           Only so we can tell you what we decided. You can report anonymously.

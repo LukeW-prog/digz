@@ -33,7 +33,7 @@ export default async function ListingPage(props: PageProps<'/listing/[id]'>) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <Link href="/" className="text-sm text-muted hover:underline">
+      <Link href="/" className="text-sm text-soft hover:underline">
         ← All rooms
       </Link>
 
@@ -45,13 +45,13 @@ export default async function ListingPage(props: PageProps<'/listing/[id]'>) {
 
           <p className="mt-2 text-2xl font-bold">
             €{listing.price_per_week}{' '}
-            <span className="text-base font-normal text-muted">a week</span>
+            <span className="text-base font-normal text-soft">a week</span>
           </p>
 
           {freshness.stale && (
             <p
               role="status"
-              className="mt-4 rounded-lg border border-warning-border bg-warning-tint p-3 text-sm"
+              className="mt-4 rounded-lg border border-alert-rule bg-alert-wash p-3 text-sm"
             >
               <strong>This may be gone.</strong> {freshness.text}. We ask hosts
               to confirm weekly, and this one has not. It stays visible so you
@@ -61,23 +61,23 @@ export default async function ListingPage(props: PageProps<'/listing/[id]'>) {
 
           {/* The differentiator, stated in minutes rather than kilometres. */}
           {listing.walk_minutes !== null && (
-            <section className="card mt-6 p-4">
+            <section className="panel mt-6 p-4">
               <h2 className="font-semibold">Getting to {CAMPUS.name}</h2>
               <div className="mt-3 flex gap-8">
                 <div>
-                  <p className="text-2xl font-bold text-brand">
+                  <p className="text-2xl font-bold text-accent">
                     {listing.walk_minutes}
                     <span className="text-base font-normal"> min</span>
                   </p>
-                  <p className="text-sm text-muted">walking</p>
+                  <p className="text-sm text-soft">walking</p>
                 </div>
                 {listing.cycle_minutes !== null && (
                   <div>
-                    <p className="text-2xl font-bold text-brand">
+                    <p className="text-2xl font-bold text-accent">
                       {listing.cycle_minutes}
                       <span className="text-base font-normal"> min</span>
                     </p>
-                    <p className="text-sm text-muted">cycling</p>
+                    <p className="text-sm text-soft">cycling</p>
                   </div>
                 )}
               </div>
@@ -86,7 +86,7 @@ export default async function ListingPage(props: PageProps<'/listing/[id]'>) {
 
           <section className="mt-6">
             <h2 className="text-lg font-semibold">The arrangement</h2>
-            <dl className="mt-3 divide-y divide-border border-y border-border">
+            <dl className="mt-3 divide-y divide-rule border-y border-rule">
               <Row label="Nights" value={SCHEDULE_LABEL[listing.schedule]} />
               <Row label="Meals" value={MEALS_LABEL[listing.meals]} />
               <Row
@@ -120,8 +120,8 @@ export default async function ListingPage(props: PageProps<'/listing/[id]'>) {
             </section>
           )}
 
-          <section className="mt-6 text-sm text-muted">
-            <h2 className="font-semibold text-text">This listing</h2>
+          <section className="mt-6 text-sm text-soft">
+            <h2 className="font-semibold text-ink">This listing</h2>
             <p className="mt-2">
               Posted {formatDate(listing.posted_at)}. {freshness.text}.
             </p>
@@ -144,7 +144,7 @@ export default async function ListingPage(props: PageProps<'/listing/[id]'>) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4 py-3">
-      <dt className="text-muted">{label}</dt>
+      <dt className="text-soft">{label}</dt>
       <dd className="text-right font-medium">{value}</dd>
     </div>
   )

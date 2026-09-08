@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { freshnessLabel } from '@/lib/listings'
+import { freshnessLabel, travelLead } from '@/lib/listings'
 import {
   MEALS_LABEL,
   ROOM_TYPE_LABEL,
@@ -7,77 +7,94 @@ import {
   type PublicListing,
 } from '@/lib/types'
 
+/**
+ * A listing, as an editorial row rather than a panel.
+ *
+ * The travel time sits in the left gutter as a large numeral, because it is
+ * the one number nobody else in this market shows, and putting it there makes
+ * the column scannable: a student reads down the minutes first, then across.
+ * The layout argues the product's case.
+ */
 export function ListingCard({ listing }: { listing: PublicListing }) {
   const freshness = freshnessLabel(listing)
-  const mealsIncluded = listing.meals !== 'none'
+  const travel = travelLead(listing)
+
+  const facts = [
+    SCHEDULE_LABEL[listing.schedule],
+    listing.meals !== 'none' && MEALS_LABEL[listing.meals],
+    listing.bills_included && 'Bills included',
+    listing.quiet_hours && 'Quiet hours',
+    listing.pets_in_house && 'Pets in house',
+  ].filter(Boolean) as string[]
 
   return (
-    <article
-      className={`card overflow-hidden transition-opacity ${
-        freshness.stale ? 'opacity-60' : ''
-      }`}
-    >
+    <article className="border-t border-rule first:border-t-0">
       <Link
         href={`/listing/${listing.id}`}
-        className="block p-4 hover:bg-brand-tint focus-visible:bg-brand-tint"
+        className="group grid grid-cols-[3.75rem_1fr] gap-x-5 gap-y-1 py-6 sm:grid-cols-[5rem_1fr] sm:gap-x-8"
       >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h3 className="text-lg font-semibold">
-              {ROOM_TYPE_LABEL[listing.room_type]} in {listing.area_label}
-            </h3>
-
-            {/* The differentiator: minutes, not kilometres. */}
-            {listing.walk_minutes !== null && (
-              <p className="mt-1 font-medium text-brand">
-                {listing.walk_minutes} min walk to campus
-                {listing.cycle_minutes !== null && (
-                  <span className="font-normal text-muted">
-                    {' '}
-                    · {listing.cycle_minutes} min cycle
-                  </span>
-                )}
+        {/* The gutter numeral. */}
+        <div className="pt-1">
+          {travel ? (
+            <>
+              <p className="font-display text-[2.25rem] leading-none font-semibold text-accent sm:text-[2.75rem]">
+                {travel.minutes}
               </p>
-            )}
-          </div>
-
-          <p className="shrink-0 text-right">
-            <span className="text-xl font-bold">€{listing.price_per_week}</span>
-            <span className="block text-sm text-muted">a week</span>
-          </p>
+              <p className="label mt-1.5 leading-tight">
+                min
+                <br />
+                {travel.mode}
+              </p>
+            </>
+          ) : (
+            <p className="label pt-2">Time
+              <br />unknown</p>
+          )}
         </div>
 
-        <ul className="mt-3 flex flex-wrap gap-2 text-sm">
-          <Tag>{SCHEDULE_LABEL[listing.schedule]}</Tag>
-          {mealsIncluded && <Tag>{MEALS_LABEL[listing.meals]}</Tag>}
-          {listing.bills_included && <Tag>Bills included</Tag>}
-          {listing.quiet_hours && <Tag>Quiet hours</Tag>}
-          {listing.pets_in_house && <Tag>Pets in house</Tag>}
-        </ul>
+        <div className="min-w-0">
+          <div className="flex items-baseline justify-between gap-4">
+            <h3 className="font-display text-xl font-semibold decoration-1 underline-offset-4 group-hover:underline sm:text-[1.375rem]">
+              {ROOM_TYPE_LABEL[listing.room_type]} in {listing.area_label}
+            </h3>
+            <p className="shrink-0 text-right">
+              <span className="font-display text-xl font-semibold sm:text-[1.375rem]">
+                €{listing.price_per_week}
+              </span>
+              <span className="label mt-0.5">a week</span>
+            </p>
+          </div>
 
-        {listing.description && (
-          <p className="mt-3 line-clamp-2 text-sm text-muted">
-            {listing.description}
+          <p className="mt-2 text-sm text-soft">
+            {facts.join(' · ')}
+            {travel?.secondary && (
+              <span className="whitespace-nowrap"> · {travel.secondary}</span>
+            )}
           </p>
-        )}
 
-        <p
-          className={`mt-3 text-sm ${
-            freshness.stale ? 'font-medium text-danger' : 'text-muted'
-          }`}
-        >
-          {freshness.text}
-          {freshness.stale && ' — may be gone'}
-        </p>
+          {listing.description && (
+            <p className="mt-2.5 line-clamp-2 text-[0.9375rem] leading-relaxed text-ink/85">
+              {listing.description}
+            </p>
+          )}
+
+          {/*
+            Stale listings are flagged, not dimmed. Reducing opacity was the
+            obvious move and it was wrong: it made the warning the hardest
+            text on the row to read, and it failed WCAG AA contrast.
+          */}
+          <p
+            className={
+              freshness.stale
+                ? 'mt-3 inline-block rounded-sm bg-alert-wash px-2 py-1 text-xs font-semibold uppercase tracking-[0.07em] text-alert'
+                : 'label mt-3'
+            }
+          >
+            {freshness.stale ? `${freshness.text} — may be gone` : freshness.text}
+          </p>
+        </div>
       </Link>
     </article>
   )
 }
 
-function Tag({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="rounded-full border border-border px-2.5 py-1">
-      {children}
-    </li>
-  )
-}

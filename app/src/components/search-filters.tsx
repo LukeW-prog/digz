@@ -8,20 +8,91 @@ import { ROOM_TYPE, ROOM_TYPE_LABEL } from '@/lib/types'
  * No JavaScript required, and every search is a shareable URL. That also means
  * results work on a bad connection, which is in the quality bar in README.md.
  *
+ * Rendered twice: a collapsed disclosure on phones, an open panel on wide
+ * screens. On a phone the panel filled the entire first screen, so you landed
+ * on the site and saw controls instead of rooms. Two renders is the price of
+ * fixing that without reaching for JavaScript, and only one is ever visible.
+ *
  * Note which filters do not exist here: nothing about who the student is.
  * See safety.md, "what we deliberately do not build".
  */
-export function SearchFiltersForm({ filters }: { filters: SearchFilters }) {
-  return (
-    <form
-      method="get"
-      action="/"
-      className="card h-fit p-4 lg:sticky lg:top-4"
-      aria-label="Filter rooms"
-    >
-      <h2 className="font-semibold">Filters</h2>
+export function SearchFiltersForm({
+  filters,
+  resultCount,
+}: {
+  filters: SearchFilters
+  resultCount: number
+}) {
+  const active = countActive(filters)
 
-      <div className="mt-4 space-y-4">
+  return (
+    <>
+      {/* Phones */}
+      <details className="panel p-0 lg:hidden">
+        <summary className="cursor-pointer list-none px-4 py-3.5">
+          <span className="label inline-flex w-full items-center justify-between gap-2 text-ink">
+            <span>
+              Filters
+              {active > 0 && (
+                <span className="ml-2 rounded-sm bg-accent px-1.5 py-0.5 text-white">
+                  {active}
+                </span>
+              )}
+            </span>
+            <span aria-hidden>
+              {resultCount} {resultCount === 1 ? 'room' : 'rooms'}
+            </span>
+          </span>
+        </summary>
+        <div className="border-t border-rule p-4">
+          <Fields filters={filters} idPrefix="m" />
+        </div>
+      </details>
+
+      {/* Wide screens */}
+      <form
+        method="get"
+        action="/"
+        className="hidden h-fit lg:sticky lg:top-10 lg:block"
+        aria-label="Filter rooms"
+      >
+        <h2 className="label border-b border-rule pb-4">Filters</h2>
+        <div className="mt-5">
+          <Fields filters={filters} idPrefix="d" inline />
+        </div>
+      </form>
+    </>
+  )
+}
+
+function countActive(f: SearchFilters): number {
+  return [
+    f.schedule,
+    f.mealsIncluded || undefined,
+    f.roomType,
+    f.maxPricePerWeek,
+    f.maxWalkMinutes,
+  ].filter(Boolean).length
+}
+
+/**
+ * The fields themselves. `inline` means the caller already provided the form
+ * element, which the desktop panel does so the whole panel is the form.
+ */
+function Fields({
+  filters,
+  idPrefix,
+  inline = false,
+}: {
+  filters: SearchFilters
+  idPrefix: string
+  inline?: boolean
+}) {
+  const id = (name: string) => `${idPrefix}-${name}`
+
+  const body = (
+    <>
+      <div className="space-y-4">
         <fieldset>
           <legend className="field-label">Which nights</legend>
           <Radio
@@ -50,17 +121,17 @@ export function SearchFiltersForm({ filters }: { filters: SearchFilters }) {
             name="meals"
             value="1"
             defaultChecked={filters.mealsIncluded}
-            className="size-5 rounded border-border accent-brand"
+            className="size-5 rounded border-rule accent-accent"
           />
           Meals included
         </label>
 
         <div>
-          <label className="field-label" htmlFor="room">
+          <label className="field-label" htmlFor={id('room')}>
             Room type
           </label>
           <select
-            id="room"
+            id={id('room')}
             name="room"
             defaultValue={filters.roomType ?? ''}
             className="field-input"
@@ -75,15 +146,15 @@ export function SearchFiltersForm({ filters }: { filters: SearchFilters }) {
         </div>
 
         <div>
-          <label className="field-label" htmlFor="maxPrice">
+          <label className="field-label" htmlFor={id('maxPrice')}>
             Most per week
           </label>
           <div className="flex items-center gap-2">
-            <span aria-hidden className="text-muted">
+            <span aria-hidden className="text-soft">
               €
             </span>
             <input
-              id="maxPrice"
+              id={id('maxPrice')}
               name="maxPrice"
               type="number"
               inputMode="numeric"
@@ -98,11 +169,11 @@ export function SearchFiltersForm({ filters }: { filters: SearchFilters }) {
         </div>
 
         <div>
-          <label className="field-label" htmlFor="maxWalk">
+          <label className="field-label" htmlFor={id('maxWalk')}>
             Longest walk to campus
           </label>
           <select
-            id="maxWalk"
+            id={id('maxWalk')}
             name="maxWalk"
             defaultValue={filters.maxWalkMinutes ?? ''}
             className="field-input"
@@ -116,16 +187,16 @@ export function SearchFiltersForm({ filters }: { filters: SearchFilters }) {
         </div>
 
         <div>
-          <label className="field-label" htmlFor="sort">
+          <label className="field-label" htmlFor={id('sort')}>
             Sort by
           </label>
           <select
-            id="sort"
+            id={id('sort')}
             name="sort"
             defaultValue={filters.sort}
             className="field-input"
           >
-            <option value="walk">Closest to campus</option>
+            <option value="walk">Quickest to campus</option>
             <option value="price">Cheapest first</option>
             <option value="newest">Most recently posted</option>
           </select>
@@ -136,10 +207,18 @@ export function SearchFiltersForm({ filters }: { filters: SearchFilters }) {
         <button type="submit" className="btn-primary !py-2 !text-sm">
           Show rooms
         </button>
-        <Link href="/" className="text-sm text-muted hover:underline">
+        <Link href="/" className="text-sm text-soft hover:underline">
           Clear
         </Link>
       </div>
+    </>
+  )
+
+  if (inline) return body
+
+  return (
+    <form method="get" action="/" aria-label="Filter rooms">
+      {body}
     </form>
   )
 }
@@ -162,7 +241,7 @@ function Radio({
         name={name}
         value={value}
         defaultChecked={checked}
-        className="size-4 accent-brand"
+        className="size-4 accent-accent"
       />
       {label}
     </label>

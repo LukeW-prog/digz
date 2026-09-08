@@ -12,12 +12,12 @@ export default function SafetyPage() {
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="text-3xl font-bold tracking-tight">Staying safe</h1>
 
-      <div className="card mt-6 border-brand bg-brand-tint p-5">
+      <div className="panel mt-6 border-accent bg-accent-wash p-5">
         <h2 className="text-lg font-semibold">The one rule</h2>
         <p className="mt-2 text-lg">
           <strong>Never pay anything before you have seen the room.</strong>
         </p>
-        <p className="mt-2 text-sm text-muted">
+        <p className="mt-2 text-sm text-soft">
           No deposit, no holding fee, no first month, no &ldquo;admin
           fee&rdquo;. Every common accommodation scam depends on getting money
           out of you before you have stood in the room. If you follow this one
@@ -26,7 +26,7 @@ export default function SafetyPage() {
       </div>
 
       <h2 className="mt-10 text-xl font-semibold">How the scams actually work</h2>
-      <p className="mt-2 text-muted">
+      <p className="mt-2 text-soft">
         Gardaí recorded 230 accommodation scam reports and €400,000 lost in the
         first seven months of 2026, with the spike running from August to
         October. Three patterns account for most of it.
@@ -75,9 +75,9 @@ export default function SafetyPage() {
         What Digs checks, and what it does not
       </h2>
       <div className="mt-3 grid gap-4 sm:grid-cols-2">
-        <div className="card p-4">
+        <div className="panel p-4">
           <h3 className="font-semibold">We do check</h3>
-          <ul className="mt-2 space-y-1 text-sm text-muted">
+          <ul className="mt-2 space-y-1 text-sm text-soft">
             <li>The host&rsquo;s phone number, by text message</li>
             <li>That the address is a real building</li>
             <li>That only one live listing exists per address</li>
@@ -85,9 +85,9 @@ export default function SafetyPage() {
             <li>Reports, and we take listings down</li>
           </ul>
         </div>
-        <div className="card p-4">
+        <div className="panel p-4">
           <h3 className="font-semibold">We do not</h3>
-          <ul className="mt-2 space-y-1 text-sm text-muted">
+          <ul className="mt-2 space-y-1 text-sm text-soft">
             <li>Garda vet hosts. We legally cannot</li>
             <li>Visit or inspect any property</li>
             <li>Check that photos match the room</li>
@@ -96,7 +96,7 @@ export default function SafetyPage() {
           </ul>
         </div>
       </div>
-      <p className="mt-4 text-sm text-muted">
+      <p className="mt-4 text-sm text-soft">
         We say precisely what we did and nothing more. If any site tells you its
         hosts are &ldquo;vetted&rdquo; or &ldquo;approved&rdquo;, ask them what
         they actually checked.
@@ -154,9 +154,9 @@ function Scam({
   children: React.ReactNode
 }) {
   return (
-    <div className="card p-4">
+    <div className="panel p-4">
       <h3 className="font-semibold">{title}</h3>
-      <p className="mt-1 text-sm text-muted">{children}</p>
+      <p className="mt-1 text-sm text-soft">{children}</p>
     </div>
   )
 }

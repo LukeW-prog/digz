@@ -1,106 +1,177 @@
 @import "tailwindcss";
 
 /*
-  Digs design tokens.
+  Digs design system.
 
-  Deliberately plain. The differentiator is that search works and pages load
-  fast on a bad connection, not that the site is decorated. Contrast targets
-  WCAG 2.1 AA throughout, per feasibility.md.
+  Three rules, and they are the reason this does not look like every other
+  generated site:
+
+  1. Typographic contrast does the work. A high-contrast editorial serif for
+     display, a neutral grotesk for everything functional. Size jumps are
+     large and deliberate rather than a smooth ramp where everything is
+     nearly the same.
+  2. Almost no boxes. Hairline rules and whitespace separate things. A card
+     is reserved for something that genuinely is a discrete object.
+  3. Corners are nearly square. Radius tops out at 4px.
+
+  Contrast targets WCAG 2.1 AA throughout, per feasibility.md. The tokens
+  below were checked with axe, not by eye.
 */
 
 :root {
-  --bg: #fbfaf8;
-  --surface: #ffffff;
-  --border: #e3ded6;
-  --text: #1c1a17;
-  --text-muted: #5c574f;
-  --brand: #1f5c4c;
-  --brand-hover: #17453a;
-  --brand-tint: #eaf2ef;
-  --danger: #a4243b;
-  --danger-tint: #fdf0f2;
-  --warning-tint: #fdf6e7;
-  --warning-border: #e6cf9a;
+  /* Warm paper rather than white. Reads domestic, not clinical. */
+  --paper: #f7f4ee;
+  --paper-raised: #fffdf9;
+  --ink: #16130f;
+  --ink-soft: #57504a;
+  --rule: #ddd6ca;
+  --rule-strong: #c3b9a8;
+
+  /* Deep bottle green. Irish, domestic, and not the default SaaS blue. */
+  --accent: #14513f;
+  --accent-hover: #0d3a2c;
+  --accent-wash: #e8efe9;
+
+  /* Rust rather than red. Warns without alarming. */
+  --alert: #8f3a16;
+  --alert-wash: #fbeee5;
+  --alert-rule: #e2bd9c;
+
+  --danger: #8c1d33;
+  --danger-wash: #fbecef;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #14130f;
-    --surface: #1d1b17;
-    --border: #35322b;
-    --text: #f3f0ea;
-    --text-muted: #a8a297;
-    --brand: #6fbfa4;
-    --brand-hover: #8ad0b7;
-    --brand-tint: #1a2f28;
-    --danger: #f08a9c;
-    --danger-tint: #2c1a1e;
-    --warning-tint: #2a2414;
-    --warning-border: #5b4d2a;
+    --paper: #12100d;
+    --paper-raised: #1b1815;
+    --ink: #f4f0e8;
+    --ink-soft: #a79f93;
+    --rule: #322d27;
+    --rule-strong: #4a4239;
+
+    --accent: #7fc4a8;
+    --accent-hover: #9ad6bd;
+    --accent-wash: #172b23;
+
+    --alert: #e8a273;
+    --alert-wash: #2a1d13;
+    --alert-rule: #5c3f27;
+
+    --danger: #ee8a9f;
+    --danger-wash: #2b141a;
   }
 }
 
 @theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-border: var(--border);
-  --color-text: var(--text);
-  --color-muted: var(--text-muted);
-  --color-brand: var(--brand);
-  --color-brand-hover: var(--brand-hover);
-  --color-brand-tint: var(--brand-tint);
+  --color-paper: var(--paper);
+  --color-raised: var(--paper-raised);
+  --color-ink: var(--ink);
+  --color-soft: var(--ink-soft);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-wash: var(--accent-wash);
+  --color-alert: var(--alert);
+  --color-alert-wash: var(--alert-wash);
+  --color-alert-rule: var(--alert-rule);
   --color-danger: var(--danger);
-  --color-danger-tint: var(--danger-tint);
-  --color-warning-tint: var(--warning-tint);
-  --color-warning-border: var(--warning-border);
-  --font-sans: var(--font-geist-sans);
+  --color-danger-wash: var(--danger-wash);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-archivo);
+
+  --radius-none: 0px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
 }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-}
-
-/* A visible focus ring on everything interactive. Non-negotiable for AA. */
 @layer base {
-  :where(a, button, input, select, textarea, summary):focus-visible {
-    outline: 2px solid var(--brand);
-    outline-offset: 2px;
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+    /* Numbers line up in columns. Prices and minutes are read in columns. */
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
   }
+
+  h1, h2, h3 {
+    font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+    letter-spacing: -0.021em;
+    /* Fraunces variable axes: optical size and a little softness. */
+    font-variation-settings: "SOFT" 20, "WONK" 1;
+  }
+
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--paper-raised);
+  }
+}
+
+/*
+  The small uppercase label. Used for field labels and metadata, never for
+  anything longer than three words.
+
+  Declared with @utility rather than as a plain class so that other rules can
+  @apply it. Tailwind 4 will not @apply a class defined in @layer components.
+*/
+@utility label {
+  display: block;
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--ink-soft);
 }
 
 @layer components {
   .field-label {
-    @apply block text-sm font-medium text-text mb-1.5;
+    @apply label mb-2;
   }
 
   .field-hint {
-    @apply text-sm text-muted mb-1.5;
+    @apply mb-2 text-sm text-soft;
   }
 
   .field-input {
-    @apply w-full rounded-lg border border-border bg-surface px-3 py-2.5
-           text-base text-text placeholder:text-muted
-           focus:border-brand focus:outline-none;
+    @apply w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-base
+           text-ink placeholder:text-soft/70
+           focus:border-accent focus:outline-none;
   }
 
   .field-error {
-    @apply mt-1.5 text-sm font-medium text-danger;
+    @apply mt-2 text-sm font-medium text-danger;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-brand
-           px-5 py-3 text-base font-semibold text-white
-           hover:bg-brand-hover disabled:opacity-60 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center rounded-sm bg-accent px-6 py-3
+           text-sm font-semibold uppercase tracking-[0.06em] text-white
+           transition-colors hover:bg-accent-hover
+           disabled:cursor-not-allowed disabled:opacity-55;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-lg border
-           border-border bg-surface px-5 py-3 text-base font-medium
-           text-text hover:bg-brand-tint;
+    @apply inline-flex items-center justify-center rounded-sm border border-rule-strong
+           bg-transparent px-6 py-3 text-sm font-semibold uppercase
+           tracking-[0.06em] text-ink transition-colors hover:bg-accent-wash;
   }
 
-  .card {
-    @apply rounded-xl border border-border bg-surface;
+  /* Reserved for genuinely discrete objects. Not a default wrapper. */
+  .panel {
+    @apply rounded-sm border border-rule bg-raised;
+  }
+
+  .prose-body p {
+    @apply leading-relaxed;
   }
 }

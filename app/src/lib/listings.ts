@@ -108,6 +108,8 @@ export async function searchListings(
   } else if (filters.sort === 'newest') {
     query = query.order('posted_at', { ascending: false })
   } else {
+    // Rough ordering only. The quickest-to-campus sort depends on which mode
+    // leads, which the database cannot express, so it is redone below.
     query = query.order('walk_minutes', { ascending: true, nullsFirst: false })
   }
 
@@ -124,7 +126,12 @@ export async function searchListings(
     return { ...rest, photos: listing_photos ?? [] }
   })
 
-  return { listings, usingSampleData: false }
+  return {
+    // Cheap at MVP scale, and it keeps one definition of "quickest".
+    listings:
+      filters.sort === 'walk' ? sortListings(listings, 'walk') : listings,
+    usingSampleData: false,
+  }
 }
 
 export async function getListing(id: string): Promise<PublicListing | null> {
@@ -175,11 +182,53 @@ function sortListings(listings: PublicListing[], sort: SearchFilters['sort']) {
   } else if (sort === 'newest') {
     sorted.sort((a, b) => b.posted_at.localeCompare(a.posted_at))
   } else {
-    sorted.sort(
-      (a, b) => (a.walk_minutes ?? 9999) - (b.walk_minutes ?? 9999),
-    )
+    // By the number actually shown, so the column reads honestly top to bottom.
+    const minutes = (l: PublicListing) => travelLead(l)?.minutes ?? 9999
+    sorted.sort((a, b) => minutes(a) - minutes(b))
   }
   return sorted
+}
+
+/**
+ * Beyond this, walking is not really how anyone gets to campus, so leading
+ * with a walk time would be technically true and practically useless.
+ */
+const WALKABLE_MINUTES = 30
+
+export type TravelLead = {
+  minutes: number
+  mode: 'walk' | 'cycle'
+  secondary: string | null
+}
+
+/**
+ * How long it takes to get to campus, by whichever mode actually makes sense
+ * for the distance.
+ *
+ * This drives both the number shown on a listing and the "quickest to campus"
+ * sort, and it has to be the same function for both. Sorting by walk time
+ * while displaying cycle time produced a column reading 8, 12, 18, 19, 21, 26
+ * where the first three were walking minutes and the rest were cycling — an
+ * apparently clean ascending scale comparing two different things.
+ */
+export function travelLead(listing: PublicListing): TravelLead | null {
+  const { walk_minutes: walk, cycle_minutes: cycle } = listing
+  if (walk === null && cycle === null) return null
+
+  const leadWithCycle =
+    cycle !== null && (walk === null || walk > WALKABLE_MINUTES)
+
+  return leadWithCycle
+    ? {
+        minutes: cycle,
+        mode: 'cycle',
+        secondary: walk !== null ? `${walk} min walk` : null,
+      }
+    : {
+        minutes: walk!,
+        mode: 'walk',
+        secondary: cycle !== null ? `${cycle} min cycle` : null,
+      }
 }
 
 /** Days since the host last confirmed the room is still free. */

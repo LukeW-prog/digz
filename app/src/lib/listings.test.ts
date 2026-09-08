@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { filtersFromSearchParams, freshnessLabel } from './listings'
+import { filtersFromSearchParams, freshnessLabel, travelLead } from './listings'
 import type { PublicListing } from './types'
 
 const listing = (overrides: Partial<PublicListing> = {}): PublicListing => ({
@@ -98,5 +98,37 @@ describe('freshness, which no Irish site shows at all', () => {
     const out = freshnessLabel(listing({ last_confirmed_at: daysAgo(7) }))
     expect(out.stale).toBe(true)
     expect(out.text).toMatch(/not confirmed for 7 days/i)
+  })
+})
+
+describe('quickest to campus', () => {
+  it('leads with walking when campus is walkable', () => {
+    const lead = travelLead(listing({ walk_minutes: 12, cycle_minutes: 5 }))
+    expect(lead).toMatchObject({ minutes: 12, mode: 'walk' })
+    expect(lead?.secondary).toBe('5 min cycle')
+  })
+
+  it('leads with cycling once a walk stops being realistic', () => {
+    const lead = travelLead(listing({ walk_minutes: 62, cycle_minutes: 21 }))
+    expect(lead).toMatchObject({ minutes: 21, mode: 'cycle' })
+    expect(lead?.secondary).toBe('62 min walk')
+  })
+
+  it('handles a listing with no travel times at all', () => {
+    expect(
+      travelLead(listing({ walk_minutes: null, cycle_minutes: null })),
+    ).toBeNull()
+  })
+
+  it('sorts by the number actually displayed, not by walk time', () => {
+    // Nearby-on-foot vs far-on-foot-but-quick-by-bike. Sorting on walk time
+    // would put the 12 minute walk first while displaying 21 above 12.
+    const near = listing({ id: 'near', walk_minutes: 12, cycle_minutes: 5 })
+    const far = listing({ id: 'far', walk_minutes: 62, cycle_minutes: 21 })
+    const shown = [far, near]
+      .sort((a, b) => (travelLead(a)?.minutes ?? 0) - (travelLead(b)?.minutes ?? 0))
+      .map((l) => travelLead(l)!.minutes)
+
+    expect(shown).toEqual([12, 21])
   })
 })

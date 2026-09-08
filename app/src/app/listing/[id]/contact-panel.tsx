@@ -22,13 +22,13 @@ export function ContactPanel({ listingId }: { listingId: string }) {
 
   if (state.contact) {
     return (
-      <div className="card border-brand bg-brand-tint p-5">
+      <div className="panel border-accent bg-accent-wash p-5">
         <h2 className="text-lg font-semibold">
           Contact {state.contact.displayName}
         </h2>
         <dl className="mt-3 space-y-2">
           <div className="flex gap-2">
-            <dt className="text-muted">Phone</dt>
+            <dt className="text-soft">Phone</dt>
             <dd>
               <a className="font-medium underline" href={`tel:${state.contact.phone}`}>
                 {state.contact.phone}
@@ -36,7 +36,7 @@ export function ContactPanel({ listingId }: { listingId: string }) {
             </dd>
           </div>
           <div className="flex gap-2">
-            <dt className="text-muted">Email</dt>
+            <dt className="text-soft">Email</dt>
             <dd>
               <a
                 className="font-medium underline"
@@ -61,15 +61,15 @@ export function ContactPanel({ listingId }: { listingId: string }) {
   }
 
   return (
-    <form action={formAction} className="card p-5">
+    <form action={formAction} className="panel p-5">
       <h2 className="text-lg font-semibold">Before you get in touch</h2>
 
       <div className="mt-4 space-y-4 text-sm">
         <div>
           <h3 className="font-semibold">Digs is not a tenancy</h3>
-          <p className="mt-1 text-muted">
+          <p className="mt-1 text-soft">
             You are a licensee, living in someone&rsquo;s home. That means{' '}
-            <strong className="text-text">
+            <strong className="text-ink">
               no Residential Tenancies Board protection, no minimum notice
               period, no rent book and no dispute resolution
             </strong>
@@ -83,7 +83,7 @@ export function ContactPanel({ listingId }: { listingId: string }) {
 
         <div>
           <h3 className="font-semibold">Never pay before you view</h3>
-          <p className="mt-1 text-muted">
+          <p className="mt-1 text-soft">
             Not a deposit, not a holding fee, not to &ldquo;secure&rdquo; the
             room. Every common accommodation scam works by getting money out of
             you before you have seen the place. Gardaí recorded €400,000 lost in
@@ -93,7 +93,7 @@ export function ContactPanel({ listingId }: { listingId: string }) {
 
         <div>
           <h3 className="font-semibold">At the viewing</h3>
-          <ul className="mt-1 space-y-1 text-muted">
+          <ul className="mt-1 space-y-1 text-soft">
             <li>Bring someone with you.</li>
             <li>Tell someone where you are going and when you will be back.</li>
             <li>Go in daylight.</li>
@@ -104,7 +104,7 @@ export function ContactPanel({ listingId }: { listingId: string }) {
           </ul>
         </div>
 
-        <p className="text-muted">
+        <p className="text-soft">
           Digs does not inspect properties and does not vet hosts. We confirm a
           host&rsquo;s phone number and that the address is real. Nothing more.
         </p>
@@ -116,7 +116,7 @@ export function ContactPanel({ listingId }: { listingId: string }) {
         <input
           type="checkbox"
           name="accepted"
-          className="mt-0.5 size-5 shrink-0 rounded border-border accent-brand"
+          className="mt-0.5 size-5 shrink-0 rounded border-rule accent-accent"
         />
         <span>I have read this and I understand digs has no RTB protection.</span>
       </label>
