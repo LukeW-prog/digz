@@ -3,69 +3,97 @@
 /*
   Digs design system.
 
-  Three rules, and they are the reason this does not look like every other
-  generated site:
+  Sleek, minimal, layered. Surfaces are glass rather than boxes: they blur and
+  desaturate what passes behind them, carry a specular edge, and float above
+  the content instead of fencing it in.
 
-  1. Typographic contrast does the work. A high-contrast editorial serif for
-     display, a neutral grotesk for everything functional. Size jumps are
-     large and deliberate rather than a smooth ramp where everything is
-     nearly the same.
-  2. Almost no boxes. Hairline rules and whitespace separate things. A card
-     is reserved for something that genuinely is a discrete object.
-  3. Corners are nearly square. Radius tops out at 4px.
+  Three things this depends on:
 
-  Contrast targets WCAG 2.1 AA throughout, per feasibility.md. The tokens
-  below were checked with axe, not by eye.
+  1. Something behind the glass. Blur over a flat colour looks like nothing at
+     all, so the page carries a soft ambient wash for the glass to work with.
+  2. Motion that decelerates. Everything eases on a spring-like curve, never
+     linear, and every animation is wrapped in a reduced-motion guard.
+  3. Contrast that survives translucency. Glass eats contrast, so text sits on
+     the opaque side of every surface. Verified with axe, not by eye.
 */
 
 :root {
-  /* Warm paper rather than white. Reads domestic, not clinical. */
-  --paper: #f7f4ee;
-  --paper-raised: #fffdf9;
+  --paper: #f6f3ed;
   --ink: #16130f;
-  --ink-soft: #57504a;
-  --rule: #ddd6ca;
-  --rule-strong: #c3b9a8;
+  --ink-soft: #5a534b;
+  --rule: rgba(22, 19, 15, 0.12);
+  --rule-strong: rgba(22, 19, 15, 0.24);
 
-  /* Deep bottle green. Irish, domestic, and not the default SaaS blue. */
   --accent: #14513f;
   --accent-hover: #0d3a2c;
-  --accent-wash: #e8efe9;
+  --accent-wash: rgba(20, 81, 63, 0.08);
+  /*
+    Text sitting on the accent. It has to flip with the accent: dark mode
+    lightens the green, and white on light mint fails contrast badly.
+  */
+  --on-accent: #ffffff;
 
-  /* Rust rather than red. Warns without alarming. */
-  --alert: #8f3a16;
-  --alert-wash: #fbeee5;
-  --alert-rule: #e2bd9c;
+  --alert: #8a3813;
+  --alert-wash: rgba(184, 92, 40, 0.1);
+  --alert-rule: rgba(184, 92, 40, 0.35);
 
   --danger: #8c1d33;
-  --danger-wash: #fbecef;
+  --danger-wash: rgba(140, 29, 51, 0.08);
+
+  /* The glass material. */
+  --glass-bg: rgba(255, 253, 250, 0.7);
+  --glass-bg-strong: rgba(246, 243, 237, 0.88);
+  --glass-edge: rgba(255, 255, 255, 0.7);
+  --glass-shade: rgba(22, 19, 15, 0.08);
+  --glass-blur: 40px;
+
+  /*
+    Ambient wash. Gives the glass something to refract.
+    Faint values read as nothing once blurred, so these are deliberately
+    stronger than they look sensible as flat colour.
+  */
+  --wash-1: rgba(20, 81, 63, 0.2);
+  --wash-2: rgba(198, 132, 52, 0.18);
+  --wash-3: rgba(64, 96, 140, 0.12);
+
+  /* Apple-ish deceleration: quick to leave, slow to settle. */
+  --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #12100d;
-    --paper-raised: #1b1815;
+    --paper: #100e0c;
     --ink: #f4f0e8;
-    --ink-soft: #a79f93;
-    --rule: #322d27;
-    --rule-strong: #4a4239;
+    --ink-soft: #a49c90;
+    --rule: rgba(244, 240, 232, 0.14);
+    --rule-strong: rgba(244, 240, 232, 0.26);
 
-    --accent: #7fc4a8;
-    --accent-hover: #9ad6bd;
-    --accent-wash: #172b23;
+    --accent: #74c1a4;
+    --accent-hover: #93d5bb;
+    --accent-wash: rgba(116, 193, 164, 0.12);
+    --on-accent: #0a1c16;
 
-    --alert: #e8a273;
-    --alert-wash: #2a1d13;
-    --alert-rule: #5c3f27;
+    --alert: #eda877;
+    --alert-wash: rgba(237, 168, 119, 0.12);
+    --alert-rule: rgba(237, 168, 119, 0.32);
 
-    --danger: #ee8a9f;
-    --danger-wash: #2b141a;
+    --danger: #f0899e;
+    --danger-wash: rgba(240, 137, 158, 0.12);
+
+    --glass-bg: rgba(38, 34, 30, 0.68);
+    --glass-bg-strong: rgba(20, 18, 16, 0.9);
+    --glass-edge: rgba(255, 255, 255, 0.12);
+    --glass-shade: rgba(0, 0, 0, 0.3);
+
+    --wash-1: rgba(116, 193, 164, 0.16);
+    --wash-2: rgba(214, 160, 90, 0.12);
+    --wash-3: rgba(122, 156, 214, 0.1);
   }
 }
 
 @theme inline {
   --color-paper: var(--paper);
-  --color-raised: var(--paper-raised);
   --color-ink: var(--ink);
   --color-soft: var(--ink-soft);
   --color-rule: var(--rule);
@@ -73,6 +101,7 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-wash: var(--accent-wash);
+  --color-on-accent: var(--on-accent);
   --color-alert: var(--alert);
   --color-alert-wash: var(--alert-wash);
   --color-alert-rule: var(--alert-rule);
@@ -82,48 +111,92 @@
   --font-display: var(--font-fraunces);
   --font-sans: var(--font-archivo);
 
-  --radius-none: 0px;
-  --radius-sm: 2px;
-  --radius-md: 3px;
-  --radius-lg: 4px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background: var(--paper);
     color: var(--ink);
     font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-    /* Numbers line up in columns. Prices and minutes are read in columns. */
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
+    /*
+      The ambient wash. Fixed, so it sits still while content scrolls over it
+      and the glass has something changing to refract.
+    */
+    background-image:
+      radial-gradient(58rem 40rem at 8% -6%, var(--wash-1), transparent 62%),
+      radial-gradient(50rem 38rem at 96% 12%, var(--wash-2), transparent 64%),
+      radial-gradient(46rem 34rem at 50% 96%, var(--wash-3), transparent 66%);
+    background-attachment: fixed;
   }
 
   h1, h2, h3 {
     font-family: var(--font-fraunces), ui-serif, Georgia, serif;
-    letter-spacing: -0.021em;
-    /* Fraunces variable axes: optical size and a little softness. */
-    font-variation-settings: "SOFT" 20, "WONK" 1;
+    letter-spacing: -0.022em;
+    font-variation-settings: "SOFT" 24, "WONK" 1;
   }
 
   :where(a, button, input, select, textarea, summary):focus-visible {
     outline: 2px solid var(--accent);
-    outline-offset: 2px;
-    border-radius: 1px;
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 
   ::selection {
     background: var(--accent);
-    color: var(--paper-raised);
+    color: var(--paper);
+  }
+
+  /* Nothing animates for anyone who has asked for less motion. */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 /*
-  The small uppercase label. Used for field labels and metadata, never for
-  anything longer than three words.
+  The glass material.
 
-  Declared with @utility rather than as a plain class so that other rules can
-  @apply it. Tailwind 4 will not @apply a class defined in @layer components.
+  Declared with @utility so other rules can @apply it. The specular edge is a
+  pair of inset shadows: a bright hairline along the top where light would
+  catch, and a soft shade along the bottom to give the surface thickness.
 */
+@utility glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-edge),
+    inset 0 -1px 0 0 var(--glass-shade),
+    0 1px 2px rgba(22, 19, 15, 0.04),
+    0 8px 32px -12px rgba(22, 19, 15, 0.14);
+}
+
+/* For surfaces carrying long-form text, where translucency costs too much. */
+@utility glass-solid {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-edge),
+    inset 0 -1px 0 0 var(--glass-shade),
+    0 1px 2px rgba(22, 19, 15, 0.04),
+    0 8px 32px -12px rgba(22, 19, 15, 0.14);
+}
+
 @utility label {
   display: block;
   font-size: 0.6875rem;
@@ -132,6 +205,38 @@
   text-transform: uppercase;
   letter-spacing: 0.09em;
   color: var(--ink-soft);
+}
+
+/*
+  Scroll-driven reveal. Native CSS, no JavaScript and no observer: the browser
+  drives it off the element's own position in the viewport.
+
+  Guarded twice — on reduced-motion, and on support for animation-timeline, so
+  browsers without it simply show the content rather than hiding it forever.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    @layer components {
+      .reveal {
+        animation: reveal-in linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 42%;
+      }
+    }
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
 }
 
 @layer components {
@@ -144,9 +249,11 @@
   }
 
   .field-input {
-    @apply w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-base
-           text-ink placeholder:text-soft/70
-           focus:border-accent focus:outline-none;
+    @apply w-full rounded-sm border border-rule bg-transparent px-3.5 py-2.5
+           text-base text-ink placeholder:text-soft/60
+           transition-[border-color,background-color,box-shadow] duration-200
+           focus:border-accent focus:bg-[color:var(--glass-bg-strong)]
+           focus:outline-none;
   }
 
   .field-error {
@@ -154,24 +261,68 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-sm bg-accent px-6 py-3
-           text-sm font-semibold uppercase tracking-[0.06em] text-white
-           transition-colors hover:bg-accent-hover
-           disabled:cursor-not-allowed disabled:opacity-55;
+    @apply inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3
+           text-sm font-semibold tracking-[0.01em] text-on-accent
+           transition-[transform,background-color,box-shadow] duration-300
+           hover:bg-accent-hover active:scale-[0.98]
+           disabled:cursor-not-allowed disabled:opacity-55 disabled:active:scale-100;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
+      0 2px 10px -2px rgba(20, 81, 63, 0.4);
+    transition-timing-function: var(--ease-out);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-sm border border-rule-strong
-           bg-transparent px-6 py-3 text-sm font-semibold uppercase
-           tracking-[0.06em] text-ink transition-colors hover:bg-accent-wash;
+    @apply glass inline-flex items-center justify-center rounded-lg px-6 py-3
+           text-sm font-semibold tracking-[0.01em] text-ink
+           transition-transform duration-300 active:scale-[0.98];
+    transition-timing-function: var(--ease-out);
   }
 
-  /* Reserved for genuinely discrete objects. Not a default wrapper. */
-  .panel {
-    @apply rounded-sm border border-rule bg-raised;
+  /* A floating glass surface. Replaces the old bordered box. */
+  .surface {
+    @apply glass rounded-lg;
+  }
+}
+
+/*
+  View transitions.
+
+  React's <ViewTransition> names the elements; this decides how they move.
+  Everything decelerates on the same spring-like curve as the rest of the UI,
+  so a navigation feels like the page settling rather than a slide show.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-group(*) {
+    animation-duration: 420ms;
+    animation-timing-function: var(--ease-out);
   }
 
-  .prose-body p {
-    @apply leading-relaxed;
+  ::view-transition-old(page) {
+    animation: fade-out 180ms var(--ease-in-out) both;
+  }
+
+  ::view-transition-new(page) {
+    animation: rise-in 420ms var(--ease-out) both;
+  }
+
+  /*
+    The sticky header must not be dragged around by the page transition, or it
+    visibly detaches and slides. Holding it still is what makes the rest of
+    the movement read as intentional.
+  */
+  ::view-transition-group(site-header) {
+    animation: none;
+  }
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 }

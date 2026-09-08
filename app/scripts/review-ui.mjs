@@ -68,9 +68,43 @@ for (const [vpName, viewport] of VIEWPORTS) {
 
     await page.goto(`${BASE}${path}`, { waitUntil: 'networkidle' })
 
+    /*
+      Settle the scroll-driven reveals before capturing.
+
+      A full-page screenshot can catch elements part way through their entry
+      animation, so the picture shows content faded or blurred that a real
+      visitor would never see that way. Forcing the end state means the
+      screenshot shows what the page actually settles into. The animations
+      themselves are checked separately, in the hover and scrolled captures.
+    */
+    await page.addStyleTag({
+      content: `.reveal { animation: none !important; opacity: 1 !important;
+                 transform: none !important; filter: none !important; }`,
+    })
+    await page.waitForTimeout(150)
+
     const dir = `${OUT}/${DARK ? 'dark' : 'light'}/${vpName}`
     await mkdir(dir, { recursive: true })
     await page.screenshot({ path: `${dir}/${name}.png`, fullPage: true })
+
+    /*
+      Glass only shows itself over something. A full-page shot from the top
+      catches the sticky header overlapping nothing at all, so the home page
+      is also captured scrolled, and with a row hovered.
+    */
+    if (name === 'home') {
+      await page.evaluate(() => window.scrollTo(0, 620))
+      await page.waitForTimeout(500)
+      await page.screenshot({ path: `${dir}/${name}-scrolled.png` })
+
+      const row = page.locator('article a').first()
+      if (await row.count()) {
+        await row.hover()
+        await page.waitForTimeout(500)
+        await page.screenshot({ path: `${dir}/${name}-hover.png` })
+      }
+      await page.evaluate(() => window.scrollTo(0, 0))
+    }
 
     // Horizontal overflow is the single commonest mobile bug and is easy to
     // miss in a full-page screenshot, so measure it rather than look for it.

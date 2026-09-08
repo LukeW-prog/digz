@@ -19,7 +19,7 @@ export default async function ReportPage(props: PageProps<'/report'>) {
         look into it afterwards.
       </p>
 
-      <div className="panel mt-6 border-danger bg-danger-wash p-4">
+      <div className="surface mt-6 bg-danger-wash p-4">
         <h2 className="font-semibold">If you are in danger, call 999 or 112</h2>
         <p className="mt-1 text-sm">
           For fraud, contact An Garda Síochána directly as well as us. We cannot

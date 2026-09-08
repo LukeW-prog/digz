@@ -15,7 +15,7 @@ export function ReportForm({ listingId }: { listingId?: string }) {
 
   if (state.ok) {
     return (
-      <div className="panel border-accent bg-accent-wash p-5">
+      <div className="surface bg-accent-wash p-5">
         <h2 className="text-lg font-semibold">Thank you, we have it</h2>
         <p className="mt-2">
           We look at reports daily. If you left an email address we will tell
@@ -33,7 +33,7 @@ export function ReportForm({ listingId }: { listingId?: string }) {
   }
 
   return (
-    <form action={formAction} className="panel p-5">
+    <form action={formAction} className="surface p-5">
       {listingId && (
         <input type="hidden" name="listingId" value={listingId} />
       )}

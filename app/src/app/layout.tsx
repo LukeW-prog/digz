@@ -1,15 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { ViewTransition } from 'react'
 import { Archivo, Fraunces } from 'next/font/google'
 import './globals.css'
 
-/**
- * Fraunces for display: a variable serif with optical sizing and a genuine
- * amount of character. Archivo for everything functional.
- *
- * The pairing is the point. Contrast between a warm editorial serif and a
- * neutral grotesk is what stops a page reading as a template.
- */
 const fraunces = Fraunces({
   variable: '--font-fraunces',
   subsets: ['latin'],
@@ -41,43 +35,55 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       <body className="flex min-h-full flex-col">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-3 focus:rounded-sm focus:bg-raised focus:px-4 focus:py-2 focus:text-ink"
+          className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-3 focus:rounded-lg focus:bg-paper focus:px-4 focus:py-2 focus:text-ink"
         >
           Skip to content
         </a>
 
-        <header className="border-b border-rule">
-          <div className="mx-auto flex max-w-6xl items-baseline justify-between gap-6 px-5 py-4 sm:px-8">
-            <Link
-              href="/"
-              className="font-display text-2xl font-semibold tracking-tight"
-            >
-              Digs
-              <span className="text-accent">.</span>
-            </Link>
+        {/*
+          The header floats. It is sticky glass, so page content blurs as it
+          passes underneath rather than sliding under an opaque bar.
+        */}
+        <header className="sticky top-0 z-40" style={{ viewTransitionName: 'site-header' }}>
+          <div className="glass-solid border-b border-rule">
+            <div className="mx-auto flex max-w-6xl items-baseline justify-between gap-6 px-5 py-4 sm:px-8">
+              <Link
+                href="/"
+                className="font-display text-2xl font-semibold tracking-tight transition-opacity duration-300 hover:opacity-70"
+              >
+                Digs
+                <span className="text-accent">.</span>
+              </Link>
 
-            <nav className="flex items-baseline gap-6">
-              <Link
-                href="/safety"
-                className="label hover:text-ink hover:underline"
-              >
-                Staying safe
-              </Link>
-              <Link
-                href="/host/new"
-                className="label text-accent hover:underline"
-              >
-                List a room
-              </Link>
-            </nav>
+              <nav className="flex items-baseline gap-6">
+                <Link
+                  href="/safety"
+                  className="label transition-colors duration-300 hover:text-ink"
+                >
+                  Staying safe
+                </Link>
+                <Link
+                  href="/host/new"
+                  className="label text-accent transition-opacity duration-300 hover:opacity-70"
+                >
+                  List a room
+                </Link>
+              </nav>
+            </div>
           </div>
         </header>
 
-        <main id="main" className="flex-1">
-          {children}
-        </main>
+        {/*
+          Crossfades the page on navigation. Without browser support the app
+          works exactly as before, just without the animation.
+        */}
+        <ViewTransition name="page">
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+        </ViewTransition>
 
-        <footer className="mt-24 border-t border-rule">
+        <footer className="mt-32 border-t border-rule">
           <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
             <p className="max-w-2xl text-sm leading-relaxed text-soft">
               Digs is a noticeboard. We do not inspect properties, we are not
@@ -96,7 +102,11 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
                 ['/terms', 'Terms'],
                 ['/privacy', 'Privacy'],
               ].map(([href, text]) => (
-                <Link key={href} href={href} className="label hover:text-ink">
+                <Link
+                  key={href}
+                  href={href}
+                  className="label transition-colors duration-300 hover:text-ink"
+                >
                   {text}
                 </Link>
               ))}

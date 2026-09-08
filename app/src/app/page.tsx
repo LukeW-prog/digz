@@ -56,9 +56,9 @@ export default async function SearchPage(props: PageProps<'/'>) {
             </div>
           ) : (
             <ul>
-              {listings.map((listing) => (
+              {listings.map((listing, index) => (
                 <li key={listing.id}>
-                  <ListingCard listing={listing} />
+                  <ListingCard listing={listing} index={index} />
                 </li>
               ))}
             </ul>

@@ -22,7 +22,7 @@ export function ContactPanel({ listingId }: { listingId: string }) {
 
   if (state.contact) {
     return (
-      <div className="panel border-accent bg-accent-wash p-5">
+      <div className="surface bg-accent-wash p-6">
         <h2 className="text-lg font-semibold">
           Contact {state.contact.displayName}
         </h2>
@@ -61,7 +61,7 @@ export function ContactPanel({ listingId }: { listingId: string }) {
   }
 
   return (
-    <form action={formAction} className="panel p-5">
+    <form action={formAction} className="surface p-6">
       <h2 className="text-lg font-semibold">Before you get in touch</h2>
 
       <div className="mt-4 space-y-4 text-sm">

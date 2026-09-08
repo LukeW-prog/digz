@@ -27,7 +27,7 @@ export function ListingForm() {
   return (
     <form action={formAction} className="space-y-8" noValidate>
       {state.message && (
-        <p role="alert" className="panel border-danger bg-danger-wash p-4 text-danger">
+        <p role="alert" className="surface bg-danger-wash p-4 text-danger">
           {state.message}
         </p>
       )}

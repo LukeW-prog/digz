@@ -8,8 +8,8 @@ import { ROOM_TYPE, ROOM_TYPE_LABEL } from '@/lib/types'
  * No JavaScript required, and every search is a shareable URL. That also means
  * results work on a bad connection, which is in the quality bar in README.md.
  *
- * Rendered twice: a collapsed disclosure on phones, an open panel on wide
- * screens. On a phone the panel filled the entire first screen, so you landed
+ * Rendered twice: a collapsed disclosure on phones, an open surface on wide
+ * screens. On a phone the surface filled the entire first screen, so you landed
  * on the site and saw controls instead of rooms. Two renders is the price of
  * fixing that without reaching for JavaScript, and only one is ever visible.
  *
@@ -28,13 +28,13 @@ export function SearchFiltersForm({
   return (
     <>
       {/* Phones */}
-      <details className="panel p-0 lg:hidden">
+      <details className="surface overflow-hidden p-0 lg:hidden">
         <summary className="cursor-pointer list-none px-4 py-3.5">
           <span className="label inline-flex w-full items-center justify-between gap-2 text-ink">
             <span>
               Filters
               {active > 0 && (
-                <span className="ml-2 rounded-sm bg-accent px-1.5 py-0.5 text-white">
+                <span className="ml-2 rounded-sm bg-accent px-1.5 py-0.5 text-on-accent">
                   {active}
                 </span>
               )}
@@ -53,7 +53,7 @@ export function SearchFiltersForm({
       <form
         method="get"
         action="/"
-        className="hidden h-fit lg:sticky lg:top-10 lg:block"
+        className="hidden h-fit lg:sticky lg:top-28 lg:block"
         aria-label="Filter rooms"
       >
         <h2 className="label border-b border-rule pb-4">Filters</h2>
@@ -77,7 +77,7 @@ function countActive(f: SearchFilters): number {
 
 /**
  * The fields themselves. `inline` means the caller already provided the form
- * element, which the desktop panel does so the whole panel is the form.
+ * element, which the desktop surface does so the whole surface is the form.
  */
 function Fields({
   filters,

@@ -147,7 +147,7 @@ function Point({
   children: React.ReactNode
 }) {
   return (
-    <li className="panel p-4">
+    <li className="surface p-4">
       <h3 className="font-semibold">{title}</h3>
       <p className="mt-1 text-sm text-soft">{children}</p>
     </li>

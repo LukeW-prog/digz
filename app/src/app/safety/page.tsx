@@ -12,7 +12,7 @@ export default function SafetyPage() {
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="text-3xl font-bold tracking-tight">Staying safe</h1>
 
-      <div className="panel mt-6 border-accent bg-accent-wash p-5">
+      <div className="surface mt-6 border-accent bg-accent-wash p-5">
         <h2 className="text-lg font-semibold">The one rule</h2>
         <p className="mt-2 text-lg">
           <strong>Never pay anything before you have seen the room.</strong>
@@ -75,7 +75,7 @@ export default function SafetyPage() {
         What Digs checks, and what it does not
       </h2>
       <div className="mt-3 grid gap-4 sm:grid-cols-2">
-        <div className="panel p-4">
+        <div className="surface p-4">
           <h3 className="font-semibold">We do check</h3>
           <ul className="mt-2 space-y-1 text-sm text-soft">
             <li>The host&rsquo;s phone number, by text message</li>
@@ -85,7 +85,7 @@ export default function SafetyPage() {
             <li>Reports, and we take listings down</li>
           </ul>
         </div>
-        <div className="panel p-4">
+        <div className="surface p-4">
           <h3 className="font-semibold">We do not</h3>
           <ul className="mt-2 space-y-1 text-sm text-soft">
             <li>Garda vet hosts. We legally cannot</li>
@@ -154,7 +154,7 @@ function Scam({
   children: React.ReactNode
 }) {
   return (
-    <div className="panel p-4">
+    <div className="surface p-4">
       <h3 className="font-semibold">{title}</h3>
       <p className="mt-1 text-sm text-soft">{children}</p>
     </div>
