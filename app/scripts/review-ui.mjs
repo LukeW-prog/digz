@@ -31,6 +31,12 @@ const ROUTES = [
   ['listing-stale', '/listing/sample-4'],
   ['host-new', '/host/new'],
   ['report', '/report'],
+  ['sign-in', '/sign-in'],
+  ['sign-in-host', '/sign-in?role=host'],
+  ['host-verify', '/host/verify'],
+  ['host-listings', '/host/listings'],
+  ['terms', '/terms'],
+  ['privacy', '/privacy'],
   ['safety', '/safety'],
   ['what-digs-is', '/what-digs-is'],
 ]

@@ -143,5 +143,5 @@ export async function createListing(
     return { message: 'Could not save the listing. Try again shortly.' }
   }
 
-  redirect(`/host/listings/${listing.id}?posted=1`)
+  redirect(`/host/listings?posted=${listing.id}`)
 }
