@@ -39,23 +39,31 @@ export async function decideReport(formData: FormData) {
 
   const { data: report } = await supabase
     .from('reports')
-    .select('id, listing_id, reporter_email, reviewed_at')
+    .select('id, listing_id, host_id, reporter_email, reviewed_at')
     .eq('id', reportId)
     .single()
 
   if (!report || report.reviewed_at) return
 
-  // The report stores the listing; the host comes from it. Resolved here
-  // rather than trusted from the form, which the browser controls.
-  let hostId: string | null = null
-  if (report.listing_id) {
+  // The host is stored on the report at the time it was filed, and is the
+  // authority here: the listing may since have been deleted, which nulls
+  // listing_id. Falling back to the listing only covers reports filed before
+  // host_id was recorded. Never taken from the form, which the browser
+  // controls.
+  let hostId: string | null = report.host_id ?? null
+  if (!hostId && report.listing_id) {
     const { data: listing } = await supabase
       .from('listings')
       .select('host_id')
       .eq('id', report.listing_id)
-      .single()
+      .maybeSingle()
     hostId = listing?.host_id ?? null
   }
+
+  // Refuse rather than record a block that did not happen. Writing
+  // `host_blocked` while blocking nobody would leave the queue saying the
+  // matter was dealt with, and it is the decision least likely to be revisited.
+  if (decision === 'host_blocked' && !hostId) return
 
   const now = new Date().toISOString()
 

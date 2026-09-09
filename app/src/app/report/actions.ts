@@ -36,8 +36,27 @@ export async function submitReport(
   }
 
   const supabase = await createClient()
+
+  // Record who the report is about, not just which advert.
+  //
+  // `reports.listing_id` is `on delete set null`, so a deleted listing would
+  // otherwise leave a report pointing at nothing — with no way to tell whose
+  // it was, and "block the host" on the admin queue silently doing nothing.
+  // The host is exactly what a scam report is about, so it is stored now
+  // rather than resolved later from a row that may be gone.
+  let hostId: string | null = null
+  if (listingId) {
+    const { data: listing } = await supabase
+      .from('listings')
+      .select('host_id')
+      .eq('id', listingId)
+      .maybeSingle()
+    hostId = listing?.host_id ?? null
+  }
+
   const { error } = await supabase.from('reports').insert({
     listing_id: listingId || null,
+    host_id: hostId,
     reason,
     details: details || null,
     reporter_email: reporterEmail || null,
