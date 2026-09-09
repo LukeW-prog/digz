@@ -36,7 +36,11 @@ export const SAMPLE_LISTINGS: PublicListing[] = [
       'Quiet house on the Moyglare Road, twelve minutes from the front gate. Own desk, fast broadband. Dinner Monday to Thursday. We have an old labrador.',
     posted_at: daysAgo(3),
     last_confirmed_at: daysAgo(1),
-    photos: [],
+    photos: [
+      { storage_path: '/sample/bedroom-01.jpg' },
+      { storage_path: '/sample/sitting-05.jpg' },
+      { storage_path: '/sample/kitchen-01.jpg' },
+    ],
   },
   {
     id: 'sample-2',
@@ -58,7 +62,12 @@ export const SAMPLE_LISTINGS: PublicListing[] = [
       'Double room in a family home just off Straffan Road. All meals included. Washing machine use any time.',
     posted_at: daysAgo(6),
     last_confirmed_at: daysAgo(2),
-    photos: [],
+    photos: [
+      { storage_path: '/sample/bedroom-04.jpg' },
+      { storage_path: '/sample/sitting-04.jpg' },
+      { storage_path: '/sample/dining-01.jpg' },
+      { storage_path: '/sample/bathroom-01.jpg' },
+    ],
   },
   {
     id: 'sample-3',
@@ -80,7 +89,10 @@ export const SAMPLE_LISTINGS: PublicListing[] = [
       'Single room in Kilcock, five minutes walk to the bus and the train. Kitchen use, no meals. Bills split.',
     posted_at: daysAgo(11),
     last_confirmed_at: daysAgo(9),
-    photos: [],
+    photos: [
+      { storage_path: '/sample/bedroom-02.jpg' },
+      { storage_path: '/sample/sitting-03.jpg' },
+    ],
   },
   {
     id: 'sample-4',
@@ -102,7 +114,10 @@ export const SAMPLE_LISTINGS: PublicListing[] = [
       'Room in Celbridge with dinner during the week. Bus to Maynooth from the end of the road. Two cats in the house.',
     posted_at: daysAgo(21),
     last_confirmed_at: daysAgo(9),
-    photos: [],
+    photos: [
+      { storage_path: '/sample/room-01.jpg' },
+      { storage_path: '/sample/sitting-02.jpg' },
+    ],
   },
   {
     id: 'sample-5',
@@ -124,7 +139,10 @@ export const SAMPLE_LISTINGS: PublicListing[] = [
       'Twin room, suits two people sharing who already know each other. Quiet estate near the Harbour.',
     posted_at: daysAgo(1),
     last_confirmed_at: daysAgo(1),
-    photos: [],
+    photos: [
+      { storage_path: '/sample/bedroom-03.jpg' },
+      { storage_path: '/sample/sitting-07.jpg' },
+    ],
   },
   {
     id: 'sample-6',
@@ -146,6 +164,10 @@ export const SAMPLE_LISTINGS: PublicListing[] = [
       'Large double in Leixlip. All meals included Monday to Friday. Ten minute drive or a straight bus to campus.',
     posted_at: daysAgo(8),
     last_confirmed_at: daysAgo(3),
-    photos: [],
+    photos: [
+      { storage_path: '/sample/bedroom-05.jpg' },
+      { storage_path: '/sample/sitting-01.jpg' },
+      { storage_path: '/sample/sitting-06.jpg' },
+    ],
   },
 ]

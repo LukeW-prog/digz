@@ -94,6 +94,10 @@ All are things to add once search is good. None are reasons to exist.
 - `app/src/lib/blocklist.json` — the discriminatory-advert phrase list
 - `app/src/lib/blocklist.ts` — the matcher. **Must be live before the first
   listing publishes.**
+- `app/src/lib/photos.ts` — where a listing photo lives and how its URL is built
+- `app/public/sample/` — development-only photos, and where they came from
+- `app/scripts/review-ui.mjs` — renders and audits every page; run it after any
+  UI change and look at the screenshots
 
 ## Open before launch
 

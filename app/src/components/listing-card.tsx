@@ -1,6 +1,8 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { ViewTransition } from 'react'
 import { freshnessLabel, travelLead } from '@/lib/listings'
+import { leadPhoto } from '@/lib/photos'
 import {
   MEALS_LABEL,
   ROOM_TYPE_LABEL,
@@ -29,6 +31,7 @@ export function ListingCard({
 }) {
   const freshness = freshnessLabel(listing)
   const travel = travelLead(listing)
+  const lead = leadPhoto(listing.photos)
 
   const facts = [
     SCHEDULE_LABEL[listing.schedule],
@@ -58,7 +61,13 @@ export function ListingCard({
           className="glass pointer-events-none absolute inset-0 rounded-lg opacity-0 transition-opacity duration-500 ease-[var(--ease-out)] group-hover:opacity-100"
         />
 
-        <div className="relative grid grid-cols-[3.75rem_1fr] gap-x-5 gap-y-1 sm:grid-cols-[5rem_1fr] sm:gap-x-8">
+        <div
+          className={`relative grid gap-x-5 gap-y-1 sm:gap-x-8 ${
+            lead
+              ? 'grid-cols-[3.5rem_1fr_5rem] sm:grid-cols-[5rem_1fr_11rem]'
+              : 'grid-cols-[3.75rem_1fr] sm:grid-cols-[5rem_1fr]'
+          }`}
+        >
           <div className="pt-1">
             {travel ? (
               <ViewTransition name={`travel-${listing.id}`}>
@@ -130,6 +139,26 @@ export function ListingCard({
               </p>
             )}
           </div>
+
+          {/*
+            The photo is decorative here on purpose. The link already reads
+            "Double room in Maynooth", and the host writes no description of
+            the image, so alt text would either repeat the heading or invent
+            detail. The listing page numbers its photos instead.
+          */}
+          {lead && (
+            <ViewTransition name={`photo-${listing.id}`}>
+              <div className="relative aspect-[4/3] self-start overflow-hidden rounded-md bg-rule">
+                <Image
+                  src={lead}
+                  alt=""
+                  fill
+                  sizes="(min-width: 640px) 11rem, 5rem"
+                  className="object-cover transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]"
+                />
+              </div>
+            </ViewTransition>
+          )}
         </div>
       </Link>
     </article>

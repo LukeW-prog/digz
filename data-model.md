@@ -104,7 +104,29 @@ Confirmation from the weekly email resets `last_confirmed_at` and moves
 | sort_order | int | |
 | created_at | timestamptz | |
 
-Min 5, max 10 per listing. Enforce in the form.
+Min 5, max 10 per listing. Enforced in the form and again in the Server Action,
+because the action is reachable by direct POST.
+
+### Where the files live
+
+Bucket `listing-photos`, public, 8 MB an object, JPEG/PNG/WebP only. Paths are
+`<host uuid>/<random uuid>.<ext>`.
+
+The browser uploads straight to Storage; the files never pass through a Server
+Action, whose request body is capped at a few megabytes in production. The
+Action receives only the resulting paths, and re-checks that each one sits
+inside the uploading host's own folder — otherwise a host could claim another
+host's photos by posting their paths.
+
+The bucket is public rather than signed. Signed URLs would expire, which is
+better for privacy, but they cost a signing round trip on every search render
+and break in a cached or shared page. The mitigations are that paths are random
+uuids, so they cannot be guessed or enumerated, and that objects are deleted
+with their listing.
+
+Known gap: a host who uploads photos and then abandons the form leaves
+unreferenced objects behind. They are invisible and cost only storage. Sweeping
+them is a scheduled job that is not built yet.
 
 ## `contact_reveals`
 

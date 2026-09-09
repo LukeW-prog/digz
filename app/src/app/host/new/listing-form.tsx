@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import { createListing, type ListingFormState } from './actions'
+import { PhotoUploader } from './photo-uploader'
 import { LISTING } from '@/lib/constants'
 import {
   MEALS,
@@ -227,6 +228,13 @@ export function ListingForm() {
             </div>
           )}
         </div>
+      </Section>
+
+      <Section
+        title="Photos"
+        hint="Five at least, ten at most. They upload as you pick them, so you can keep filling in the form while they go."
+      >
+        <PhotoUploader error={err('photos')} />
       </Section>
 
       <div className="flex flex-col gap-3 border-t border-rule pt-6 sm:flex-row sm:items-center sm:gap-4">

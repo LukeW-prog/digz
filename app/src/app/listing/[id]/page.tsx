@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ViewTransition } from 'react'
 import { ContactPanel } from './contact-panel'
+import { Gallery } from './gallery'
 import { freshnessLabel, getListing, travelLead } from '@/lib/listings'
 import { CAMPUS } from '@/lib/constants'
 import {
@@ -66,6 +67,8 @@ export default async function ListingPage(props: PageProps<'/listing/[id]'>) {
               surprised if there is no reply.
             </p>
           )}
+
+          <Gallery listingId={listing.id} photos={listing.photos} />
 
           {/* The differentiator, stated in minutes rather than kilometres. */}
           {travel && (

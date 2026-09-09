@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { checkText, type BlocklistHit } from '@/lib/blocklist'
 import { geocodeAddress, travelTimesToCampus } from '@/lib/geocode'
 import { fieldErrors, listingFromFormData, listingSchema } from '@/lib/listing-schema'
+import { LISTING } from '@/lib/constants'
+import { parsePhotoPaths } from '@/lib/photos'
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 
 export type ListingFormState = {
@@ -64,6 +66,36 @@ export async function createListing(
     return { errors: fieldErrors(parsed.error) }
   }
   const input = parsed.data
+
+  // 2b. Photos. The files are already in Storage, uploaded by the browser, so
+  //     what arrives here is a list of object paths. None of it is trusted:
+  //     the count is re-checked, and every path must sit inside this host's
+  //     own folder. The Storage policy enforces the same prefix on write, so
+  //     a forged path could not have been uploaded, but a host could still
+  //     post one pointing at another host's object and steal their photos.
+  const photoPaths = parsePhotoPaths(formData.get('photoPaths'))
+
+  if (photoPaths.length < LISTING.minPhotos) {
+    return {
+      errors: {
+        photos: `Add at least ${LISTING.minPhotos} photos. You have ${photoPaths.length}.`,
+      },
+    }
+  }
+
+  if (photoPaths.length > LISTING.maxPhotos) {
+    return {
+      errors: { photos: `That is more than ${LISTING.maxPhotos} photos.` },
+    }
+  }
+
+  if (photoPaths.some((path) => !path.startsWith(`${host.id}/`))) {
+    return {
+      errors: {
+        photos: 'Those photos could not be verified. Remove them and add them again.',
+      },
+    }
+  }
 
   // 3. Discriminatory advert screening. The one check that cannot be deferred.
   if (input.description) {
@@ -141,6 +173,22 @@ export async function createListing(
       }
     }
     return { message: 'Could not save the listing. Try again shortly.' }
+  }
+
+  // 7. Attach the photos. A listing with none breaks the rule the form just
+  //    enforced, so if this fails the listing goes with it rather than being
+  //    left published and empty.
+  const { error: photoError } = await supabase.from('listing_photos').insert(
+    photoPaths.map((storage_path, i) => ({
+      listing_id: listing.id,
+      storage_path,
+      sort_order: i,
+    })),
+  )
+
+  if (photoError) {
+    await supabase.from('listings').delete().eq('id', listing.id)
+    return { message: 'Could not save the photos. Try again shortly.' }
   }
 
   redirect(`/host/listings?posted=${listing.id}`)
