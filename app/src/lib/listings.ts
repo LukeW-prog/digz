@@ -83,7 +83,7 @@ export async function searchListings(
   const supabase = await createClient()
   let query = supabase
     .from('listings')
-    .select(`${PUBLIC_LISTING_COLUMNS}, listing_photos (storage_path)`)
+    .select(`${PUBLIC_LISTING_COLUMNS}, listing_photos (storage_path, subject)`)
     .in('status', ['live', 'stale'])
 
   if (filters.schedule) {
@@ -121,7 +121,7 @@ export async function searchListings(
 
   const listings = (data ?? []).map((row) => {
     const { listing_photos, ...rest } = row as unknown as PublicListing & {
-      listing_photos: { storage_path: string }[]
+      listing_photos: { storage_path: string; subject: string | null }[]
     }
     return { ...rest, photos: listing_photos ?? [] }
   })
@@ -142,7 +142,7 @@ export async function getListing(id: string): Promise<PublicListing | null> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('listings')
-    .select(`${PUBLIC_LISTING_COLUMNS}, listing_photos (storage_path)`)
+    .select(`${PUBLIC_LISTING_COLUMNS}, listing_photos (storage_path, subject)`)
     .eq('id', id)
     .in('status', ['live', 'stale'])
     .single()
@@ -150,7 +150,7 @@ export async function getListing(id: string): Promise<PublicListing | null> {
   if (error || !data) return null
 
   const { listing_photos, ...rest } = data as unknown as PublicListing & {
-    listing_photos: { storage_path: string }[]
+    listing_photos: { storage_path: string; subject: string | null }[]
   }
   return { ...rest, photos: listing_photos ?? [] }
 }

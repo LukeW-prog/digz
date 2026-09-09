@@ -93,7 +93,7 @@ export type PublicListing = {
   description: string | null
   posted_at: string
   last_confirmed_at: string
-  photos: { storage_path: string }[]
+  photos: { storage_path: string; subject?: string | null }[]
 }
 
 /** The columns safe to select for public views. Use this, never `*`. */

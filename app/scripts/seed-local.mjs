@@ -37,6 +37,16 @@ const db = createClient(URL, SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 })
 
+/** The fixture filenames already say what the photo is; reuse that. */
+function subjectFor(name) {
+  if (name.startsWith('bedroom') || name.startsWith('room')) return 'room'
+  if (name.startsWith('kitchen')) return 'kitchen'
+  if (name.startsWith('bathroom')) return 'bathroom'
+  if (name.startsWith('sitting')) return 'sitting_room'
+  if (name.startsWith('dining')) return 'dining_room'
+  return null
+}
+
 const day = 86_400_000
 const ago = (n) => new Date(Date.now() - n * day).toISOString()
 
@@ -213,7 +223,12 @@ for (const listing of LISTINGS) {
       .upload(path, file, { contentType: 'image/jpeg', upsert: true })
 
     if (uploadError) throw uploadError
-    rows.push({ listing_id: data.id, storage_path: path, sort_order: i })
+    rows.push({
+      listing_id: data.id,
+      storage_path: path,
+      subject: subjectFor(name),
+      sort_order: i,
+    })
   }
 
   const { error: photoError } = await db.from('listing_photos').insert(rows)

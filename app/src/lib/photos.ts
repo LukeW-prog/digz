@@ -38,7 +38,64 @@ export const PHOTO_UPLOAD = {
   quality: 0.82,
 } as const
 
-export type PhotoRef = { storage_path: string }
+export type PhotoRef = { storage_path: string; subject?: string | null }
+
+/**
+ * What a photo can show.
+ *
+ * A fixed list rather than a free-text alt box, because this is answered and
+ * that is not. One tap per photo at the end of a long form gets done; writing
+ * a sentence about a picture you are looking at does not, and what comes back
+ * when it is forced is "room" ten times, which is worse than nothing because
+ * it sounds like a description.
+ *
+ * The room itself comes first: it is the one photo every student looks for.
+ */
+export const PHOTO_SUBJECT = [
+  'room',
+  'kitchen',
+  'bathroom',
+  'sitting_room',
+  'dining_room',
+  'outside',
+  'other',
+] as const
+
+export type PhotoSubject = (typeof PHOTO_SUBJECT)[number]
+
+export const PHOTO_SUBJECT_LABEL: Record<PhotoSubject, string> = {
+  room: 'The room',
+  kitchen: 'The kitchen',
+  bathroom: 'The bathroom',
+  sitting_room: 'The sitting room',
+  dining_room: 'The dining room',
+  outside: 'Outside the house',
+  other: 'Somewhere else in the house',
+}
+
+export function isPhotoSubject(value: unknown): value is PhotoSubject {
+  return (
+    typeof value === 'string' &&
+    (PHOTO_SUBJECT as readonly string[]).includes(value)
+  )
+}
+
+/**
+ * The alt text for one photo.
+ *
+ * Falls back to position when the host said nothing. Position is not a
+ * description, but it is true, and it at least tells someone how many photos
+ * they are moving through.
+ */
+export function photoAlt(
+  subject: string | null | undefined,
+  index: number,
+  total: number,
+): string {
+  const position = `Photo ${index + 1} of ${total}`
+  if (!isPhotoSubject(subject)) return position
+  return `${PHOTO_SUBJECT_LABEL[subject]}. ${position}`
+}
 
 /**
  * Resolve a stored path to something an `<img>` can load.
@@ -85,14 +142,44 @@ export function leadPhoto(photos: PhotoRef[]): string | null {
  * Lives here rather than in the action because a 'use server' module may only
  * export async functions, and this needs to be directly testable.
  */
-export function parsePhotoPaths(value: unknown): string[] {
+export function parsePhotoPaths(value: unknown): SubmittedPhoto[] {
   if (typeof value !== 'string' || value === '') return []
 
   try {
     const parsed: unknown = JSON.parse(value)
     if (!Array.isArray(parsed)) return []
-    return parsed.filter((p): p is string => typeof p === 'string' && p !== '')
+
+    return parsed.flatMap((entry): SubmittedPhoto[] => {
+      // Older submissions sent a bare array of paths. Accept both, so a form
+      // open in a tab across a deploy does not lose the host's photos.
+      if (typeof entry === 'string' && entry !== '') {
+        return [{ path: entry, subject: null }]
+      }
+
+      if (
+        entry &&
+        typeof entry === 'object' &&
+        'path' in entry &&
+        typeof (entry as { path: unknown }).path === 'string' &&
+        (entry as { path: string }).path !== ''
+      ) {
+        const subject = (entry as { subject?: unknown }).subject
+        return [
+          {
+            path: (entry as { path: string }).path,
+            // Anything not on the list becomes null rather than being stored.
+            // The column feeds alt text, so it must never carry text a host
+            // chose freely.
+            subject: isPhotoSubject(subject) ? subject : null,
+          },
+        ]
+      }
+
+      return []
+    })
   } catch {
     return []
   }
 }
+
+export type SubmittedPhoto = { path: string; subject: PhotoSubject | null }

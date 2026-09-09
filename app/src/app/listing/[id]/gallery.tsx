@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { ViewTransition } from 'react'
-import { photoUrl, type PhotoRef } from '@/lib/photos'
+import { photoAlt, photoUrl, type PhotoRef } from '@/lib/photos'
 
 /**
  * The photos, as one lead image and a rail of the rest.
@@ -12,9 +12,10 @@ import { photoUrl, type PhotoRef } from '@/lib/photos'
  * The lead image carries the same view transition name as the thumbnail on
  * the search row, so it grows out of the row you clicked instead of appearing.
  *
- * Alt text is positional rather than descriptive. Hosts write no caption, so
- * anything else would be invented. Host-written alt text is the right fix and
- * is not built yet.
+ * Alt text says what the photo shows when the host picked a subject, and falls
+ * back to position when they did not. Position is not a description, but it is
+ * true — and a room a student cannot see is the whole thing they are trying to
+ * judge, so the picker is worth the one tap it costs.
  */
 export function Gallery({
   listingId,
@@ -36,7 +37,7 @@ export function Gallery({
         <div className="relative aspect-[3/2] overflow-hidden rounded-xl bg-rule">
           <Image
             src={photoUrl(lead.storage_path)}
-            alt={`Photo 1 of ${photos.length}`}
+            alt={photoAlt(lead.subject, 0, photos.length)}
             fill
             priority
             sizes="(min-width: 1024px) 44rem, 100vw"
@@ -60,7 +61,7 @@ export function Gallery({
             >
               <Image
                 src={photoUrl(photo.storage_path)}
-                alt={`Photo ${i + 2} of ${photos.length}`}
+                alt={photoAlt(photo.subject, i + 1, photos.length)}
                 fill
                 sizes="(min-width: 640px) 14rem, 58vw"
                 className="object-cover"

@@ -141,6 +141,40 @@ console.log('\nHost')
       record('Confirming resets the freshness clock', false, 'no confirm button')
     }
 
+    // Upload a real file through the real uploader. This is the only check
+    // that exercises the browser-side redraw that strips EXIF, the direct
+    // upload to Storage, and the subject picker that becomes alt text.
+    await page.goto(`${BASE}/host/new`, { waitUntil: 'networkidle' })
+    await page.setInputFiles('input[type="file"]', 'public/sample/bedroom-01.jpg')
+    await page.locator('select[id^="subject-"]').first().waitFor({ timeout: 30000 })
+    record('A photo uploads from the form', true)
+
+    await page.locator('select[id^="subject-"]').first().selectOption('room')
+    const hidden = await page
+      .locator('input[name="photoPaths"]')
+      .inputValue()
+    record(
+      'The subject picker reaches the form data',
+      hidden.includes('"subject":"room"'),
+    )
+    await page.screenshot({
+      path: '.ui-review/flow-uploader.png',
+      fullPage: true,
+    })
+
+    // The uploaded file must be a stripped JPEG, not the original bytes.
+    const { createClient: sbClient } = await import('@supabase/supabase-js')
+    const store = sbClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    )
+    const uploadedPath = JSON.parse(hidden)[0].path
+    const { data: blob } = await store.storage
+      .from('listing-photos')
+      .download(uploadedPath)
+    const bytes = Buffer.from(await blob.arrayBuffer())
+    record('It is stored as a JPEG with no GPS tags', !bytes.includes(Buffer.from('GPS')))
+
     // The form must refuse to publish a discriminatory advert. This is the
     // one screening that cannot be deferred, so it is checked through the
     // real form rather than only in unit tests.

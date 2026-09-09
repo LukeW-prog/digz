@@ -125,7 +125,7 @@ export async function createListing(
     }
   }
 
-  if (photoPaths.some((path) => !path.startsWith(`${host.id}/`))) {
+  if (photoPaths.some((photo) => !photo.path.startsWith(`${host.id}/`))) {
     return {
       errors: {
         photos: 'Those photos could not be verified. Remove them and add them again.',
@@ -187,9 +187,12 @@ export async function createListing(
   //    enforced, so if this fails the listing goes with it rather than being
   //    left published and empty.
   const { error: photoError } = await supabase.from('listing_photos').insert(
-    photoPaths.map((storage_path, i) => ({
+    photoPaths.map((photo, i) => ({
       listing_id: listing.id,
-      storage_path,
+      storage_path: photo.path,
+      // Null when the host did not say. The gallery falls back to positional
+      // alt text rather than inventing a description.
+      subject: photo.subject,
       sort_order: i,
     })),
   )

@@ -2,7 +2,14 @@
 
 import { useCallback, useId, useRef, useState } from 'react'
 import { LISTING } from '@/lib/constants'
-import { PHOTO_BUCKET, PHOTO_UPLOAD } from '@/lib/photos'
+import {
+  PHOTO_BUCKET,
+  PHOTO_SUBJECT,
+  PHOTO_SUBJECT_LABEL,
+  PHOTO_UPLOAD,
+  isPhotoSubject,
+  type PhotoSubject,
+} from '@/lib/photos'
 import { createClient } from '@/lib/supabase/client'
 
 /**
@@ -18,7 +25,9 @@ import { createClient } from '@/lib/supabase/client'
  * whole form, and they can carry on typing while the bytes move.
  *
  * Abandoned uploads leave objects behind. They are unreferenced and invisible,
- * and sweeping them is a scheduled job that is not built yet.
+ * and api/cron/retention sweeps them a day later — a day, because until the
+ * listing row is written a form somebody is still filling in looks exactly
+ * like an abandoned one.
  */
 
 type Item = {
@@ -29,6 +38,8 @@ type Item = {
   path?: string
   error?: string
   status: 'uploading' | 'done' | 'error'
+  /** What the photo shows. Null until the host picks, which is optional. */
+  subject: PhotoSubject | null
 }
 
 const CONFIGURED = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL)
@@ -72,6 +83,7 @@ export function PhotoUploader({ error }: { error?: string }) {
             key,
             name: file.name,
             previewUrl,
+            subject: null,
             status: 'error',
             error: local ?? 'Sign in again to upload photos.',
           },
@@ -81,7 +93,7 @@ export function PhotoUploader({ error }: { error?: string }) {
 
       setItems((prev) => [
         ...prev,
-        { key, name: file.name, previewUrl, status: 'uploading' },
+        { key, name: file.name, previewUrl, subject: null, status: 'uploading' },
       ])
 
       // Strip EXIF and shrink before a byte leaves the browser. If this fails
@@ -150,33 +162,65 @@ export function PhotoUploader({ error }: { error?: string }) {
       {items.length > 0 && (
         <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
           {items.map((item) => (
-            <li
-              key={item.key}
-              className="relative aspect-square overflow-hidden rounded-md bg-rule"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element --
-                  the source is a local blob URL, which next/image cannot
-                  optimise and must not be handed a remote loader for. */}
-              <img
-                src={item.previewUrl}
-                alt=""
-                className="size-full object-cover"
-              />
+            <li key={item.key}>
+              <div className="relative aspect-square overflow-hidden rounded-md bg-rule">
+                {/* eslint-disable-next-line @next/next/no-img-element --
+                    the source is a local blob URL, which next/image cannot
+                    optimise and must not be handed a remote loader for. */}
+                <img
+                  src={item.previewUrl}
+                  alt=""
+                  className="size-full object-cover"
+                />
 
-              {item.status !== 'done' && (
-                <span className="absolute inset-0 flex items-center justify-center bg-ink/65 px-2 text-center text-xs font-medium text-paper">
-                  {item.status === 'uploading' ? 'Uploading…' : item.error}
-                </span>
+                {item.status !== 'done' && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-ink/65 px-2 text-center text-xs font-medium text-paper">
+                    {item.status === 'uploading' ? 'Uploading…' : item.error}
+                  </span>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => remove(item)}
+                  className="absolute top-1 right-1 rounded-full bg-ink/75 px-2 py-0.5 text-xs font-medium text-paper transition-colors hover:bg-ink"
+                >
+                  Remove
+                  <span className="sr-only"> {item.name}</span>
+                </button>
+              </div>
+
+              {/*
+                One tap, and it becomes the alt text a screen reader reads.
+                Optional on purpose: a required free-text box at the end of a
+                long form gets "room" ten times, which sounds like a
+                description and is not one.
+              */}
+              {item.status === 'done' && (
+                <>
+                  <label className="sr-only" htmlFor={`subject-${item.key}`}>
+                    What does this photo show?
+                  </label>
+                  <select
+                    id={`subject-${item.key}`}
+                    value={item.subject ?? ''}
+                    onChange={(e) =>
+                      update(item.key, {
+                        subject: isPhotoSubject(e.target.value)
+                          ? e.target.value
+                          : null,
+                      })
+                    }
+                    className="field-input mt-1.5 !py-1.5 !text-xs"
+                  >
+                    <option value="">What is it?</option>
+                    {PHOTO_SUBJECT.map((subject) => (
+                      <option key={subject} value={subject}>
+                        {PHOTO_SUBJECT_LABEL[subject]}
+                      </option>
+                    ))}
+                  </select>
+                </>
               )}
-
-              <button
-                type="button"
-                onClick={() => remove(item)}
-                className="absolute top-1 right-1 rounded-full bg-ink/75 px-2 py-0.5 text-xs font-medium text-paper transition-colors hover:bg-ink"
-              >
-                Remove
-                <span className="sr-only"> {item.name}</span>
-              </button>
             </li>
           ))}
         </ul>
@@ -199,7 +243,9 @@ export function PhotoUploader({ error }: { error?: string }) {
       <input
         type="hidden"
         name="photoPaths"
-        value={JSON.stringify(done.map((i) => i.path))}
+        value={JSON.stringify(
+          done.map((i) => ({ path: i.path, subject: i.subject })),
+        )}
       />
 
       {error && (
