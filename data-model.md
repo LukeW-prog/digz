@@ -160,10 +160,30 @@ a listing, ask why.
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid, pk | |
-| reveal_id | uuid, fk contact_reveals | |
+| reveal_id | uuid, fk contact_reveals | Unique. One question per reveal, ever. |
+| token | uuid | Unguessable id in the emailed link. Grants nothing but the ability to answer this one question. |
 | asked_at | timestamptz | |
 | answer | enum | `matched_here`, `matched_elsewhere`, `still_looking`, `no_reply` |
 | answered_at | timestamptz | |
+
+Asked by `/api/cron/outcomes`, scheduled in `app/vercel.json`. The student
+answers at `/outcome/<token>` with no account: requiring a sign-in would cut
+the response rate to whoever could be bothered, and the point of this number is
+that it is not a guess.
+
+The four answers are buttons that POST, not four links. Mail scanners and
+prefetchers follow links, and a GET-based answer would have recorded outcomes
+no student ever chose — worse than having no data. First answer wins, so a
+second click or a forwarded email cannot overwrite it.
+
+The row is written before the email is sent, so a doubled run hits the unique
+index rather than sending twice; if the send then fails the row is deleted so
+the next run retries. A student recorded as asked who never heard from us is
+the one failure that quietly corrupts the metric.
+
+`no_reply` exists on purpose. It is the least flattering answer and the most
+useful: hosts who never reply are the failure mode that makes a digs site
+useless, and it cannot be fixed if nobody is asked.
 
 ## `reports`
 

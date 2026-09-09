@@ -40,6 +40,18 @@ export const FRESHNESS = {
 } as const
 
 /**
+ * The two-week outcome check, from the success criteria in mvp.md.
+ *
+ * Contacts are easy to count and mean little on their own. This is the only
+ * thing that says whether anyone actually got a room, so the kill gate is
+ * measurable rather than a guess.
+ */
+export const OUTCOME = {
+  /** Long enough for a viewing and a decision, short enough to be remembered. */
+  askAfterDays: 14,
+} as const
+
+/**
  * The safety notice a student accepts before a host contact is revealed.
  * Bump the version whenever the wording changes. The accepted version is
  * stored on every contact_reveals row, so we can always say what someone saw.
