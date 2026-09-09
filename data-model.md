@@ -76,6 +76,7 @@ Only needed to reveal a host's contact. Browsing needs no account.
 | posted_at | timestamptz | Shown publicly |
 | last_confirmed_at | timestamptz | Shown publicly. Set on create, then by weekly email click. |
 | expires_at | timestamptz | `last_confirmed_at + 14 days` |
+| last_prompted_at | timestamptz, null | Last reminder sent. Null means never asked. Compared against `last_confirmed_at`, so confirming resets the cycle with no extra write. |
 | removed_at | timestamptz | |
 | removed_reason | text | Admin note |
 
@@ -90,6 +91,13 @@ live    → 7 days without confirm → stale   (greyed out, still shown)
 stale   → 14 days without confirm → expired (hidden)
 any     → admin or report → removed
 ```
+
+The ageing is done by a nightly job, `/api/cron/freshness`, scheduled in
+`app/vercel.json` and authorised by `CRON_SECRET`. It marks listings stale
+and expired and emails hosts to confirm, at most once every three days from
+day 6. It is idempotent: every decision comes from timestamps on the row, so
+running it twice, or once after an outage, gives the same result. The rules
+are in `app/src/lib/freshness.ts` and are unit tested across a full lapse.
 
 Confirmation from the weekly email resets `last_confirmed_at` and moves
 `stale` back to `live`.

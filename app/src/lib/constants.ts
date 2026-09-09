@@ -24,6 +24,19 @@ export const FRESHNESS = {
   staleAfterDays: 7,
   /** Unconfirmed for this long and it is hidden. */
   expiresAfterDays: 14,
+
+  /**
+   * Ask the host to confirm from this day on, a day before the listing greys
+   * out. Asking earlier trains hosts to ignore the email; asking only once it
+   * has already greyed out means students saw a stale listing first.
+   */
+  promptAfterDays: 6,
+
+  /**
+   * And no more often than this. Between day 6 and day 14 that is at most
+   * three emails: one before it greys out, one after, one before it vanishes.
+   */
+  promptEveryDays: 3,
 } as const
 
 /**

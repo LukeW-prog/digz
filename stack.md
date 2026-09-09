@@ -47,6 +47,14 @@ In this order. All free to open.
 5. **Twilio** — twilio.com. Create a Verify service. Note the service SID.
 6. **Resend** — resend.com. Add the domain once you have one; until then
    use their test sender.
+7. **Storage bucket** — created by `supabase/migrations/0002_listing_photo_storage.sql`.
+   Run the migrations before the first host tries to post, or photo upload
+   fails with no obvious cause.
+8. **Cron secret** — set `CRON_SECRET` in the Vercel project to any long
+   random string. The nightly freshness job at `/api/cron/freshness` refuses
+   every request without it, and without the variable it refuses all of them,
+   so listings would never age and no host would ever be asked to confirm.
+   The schedule itself is in `app/vercel.json`.
 
 ## Environment variables
 
