@@ -50,7 +50,15 @@ In this order. All free to open.
 7. **Storage bucket** — created by `supabase/migrations/0002_listing_photo_storage.sql`.
    Run the migrations before the first host tries to post, or photo upload
    fails with no obvious cause.
-8. **Cron secret** — set `CRON_SECRET` in the Vercel project to any long
+8. **Allowed redirect URLs** — in Supabase, Authentication → URL
+   Configuration, add `https://<your-domain>/auth/callback` and set the site
+   URL. **Sign-in silently breaks without this.** The app asks to come back to
+   /auth/callback, and when that URL is not on the allow-list Supabase does not
+   error: it substitutes the site URL, so the magic link lands on the home page
+   carrying a code nothing exchanges, and the person stays signed out with no
+   message. This was found locally and it will happen again on the first
+   deploy if the deployed URL is not added.
+9. **Cron secret** — set `CRON_SECRET` in the Vercel project to any long
    random string. The nightly freshness job at `/api/cron/freshness` refuses
    every request without it, and without the variable it refuses all of them,
    so listings would never age and no host would ever be asked to confirm.

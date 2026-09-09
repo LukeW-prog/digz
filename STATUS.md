@@ -1,13 +1,20 @@
 # Status
 
-**73% to a working v1.**
+**82% to a working v1.**
 
 Last updated: 9 September 2026.
 
-The build is essentially done. What remains is the part where a project finds
-out whether it works: running against a real database, turning on the three
-paid services, and putting it somewhere students can reach. Expect surprises
-in that last quarter — that is where they live.
+The site now runs against a real database. Local Supabase in Docker — real
+Postgres, real auth, real Storage, real row level security — with all four
+migrations applied and every flow driven end to end through a real browser and
+real magic-link emails.
+
+That exercise found four bugs nothing else had: two that broke every photo, one
+that silently broke sign-in, and one that lost blocklist evidence. None of them
+could have been caught by a unit test or a build.
+
+What remains is the three paid services and a deploy. Those are the parts that
+need your accounts.
 
 ---
 
@@ -20,19 +27,19 @@ has been seen working, not when it has been written.
 | # | Area | Weight | Scored | Why not full marks |
 |---|---|---|---|---|
 | 1 | Product decided and documented | 5 | 5 | — |
-| 2 | Schema and data model | 8 | 7 | Four migrations written; never applied to a hosted project |
+| 2 | Schema and data model | 8 | 8 | All four migrations applied and exercised |
 | 3 | Student side: search, listing page, contact reveal | 12 | 12 | — |
-| 4 | Host side: sign in, verify, post, manage | 12 | 10 | Posting depends on Google and Twilio, neither exercised |
+| 4 | Host side: sign in, verify, post, manage | 12 | 10 | Sign-in, listings and screening verified; Google and Twilio still unexercised |
 | 5 | Photos: upload, storage, display | 8 | 8 | — |
-| 6 | Compliance: blocklist, reports, admin queue, DSA reasons | 10 | 9 | Queue never used against real reports |
+| 6 | Compliance: blocklist, reports, admin queue, DSA reasons | 10 | 10 | Queue used on real reports; refusal logged as evidence |
 | 7 | Freshness and measurement loops | 8 | 7 | No email has actually been sent |
 | 8 | Design, accessibility, mobile | 10 | 10 | — |
 | 9 | Automated checks | 5 | 5 | — |
-| 10 | Runs against a real database | 8 | 0 | In progress |
+| 10 | Runs against a real database | 8 | 7 | Verified locally; a hosted project still has its own config |
 | 11 | External services live | 8 | 0 | No Maps, Twilio or Resend keys |
 | 12 | Deployed and reachable | 4 | 0 | — |
 | 13 | Launch gates cleared | 2 | 0 | STL register question unanswered |
-| | **Total** | **100** | **73** | |
+| | **Total** | **100** | **82** | |
 
 ---
 
@@ -55,15 +62,23 @@ has been seen working, not when it has been written.
 - [x] Nightly freshness sweep, idempotent, with host reminders
 - [x] Two-week outcome check, answerable without an account
 - [x] Design system, light and dark, WCAG 2.1 AA verified by axe on every page
-- [x] 129 unit tests, a UI review harness, and `scripts/verify-v1.mjs`
+- [x] 129 unit tests, a UI review harness, and two acceptance scripts
+- [x] **Verified against a real database**: RLS holds under the anon key, no
+      address or coordinate reaches any page, the freshness sweep really does
+      stale and expire, and the outcome job asked its first question
+- [x] **Verified signed in, through a real browser and real magic links**: an
+      admin decides a report and the reason is stored, a host confirms a room
+      and the clock resets, a student accepts the notice and sees the number,
+      and the form refuses a discriminatory advert and logs the evidence
 
 ## Outstanding
 
 ### Blocking v1
 
-- [ ] **Run against a real database.** Migrations 0001–0004 have never been
-      applied anywhere. Local Supabase is coming up now; a hosted project still
-      needs your account.
+- [ ] **Create the hosted Supabase project.** The schema is proven locally, so
+      this is now configuration rather than risk. Needs your account.
+      **Add `https://<domain>/auth/callback` to the allowed redirect URLs** —
+      without it sign-in silently fails with no error message.
 - [ ] **Google Maps key.** Without it a host cannot post at all: the form stops
       at address lookup. This is the single biggest untested path.
 - [ ] **Twilio Verify.** Phone verification is the main thing keeping fake
@@ -112,7 +127,9 @@ has been seen working, not when it has been written.
 cd app
 npm test                 # unit tests
 npm run review:ui        # renders and audits every page, light and dark
+node scripts/seed-local.mjs  # real rows and real photos, local only
 node scripts/verify-v1.mjs   # the acceptance check, against a running site
+node scripts/flow-check.mjs  # the signed-in flows, through a real browser
 ```
 
 `verify-v1.mjs` is the definition of done. It exits non-zero while anything

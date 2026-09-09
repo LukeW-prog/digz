@@ -67,37 +67,15 @@ export async function createListing(
   }
   const input = parsed.data
 
-  // 2b. Photos. The files are already in Storage, uploaded by the browser, so
-  //     what arrives here is a list of object paths. None of it is trusted:
-  //     the count is re-checked, and every path must sit inside this host's
-  //     own folder. The Storage policy enforces the same prefix on write, so
-  //     a forged path could not have been uploaded, but a host could still
-  //     post one pointing at another host's object and steal their photos.
-  const photoPaths = parsePhotoPaths(formData.get('photoPaths'))
-
-  if (photoPaths.length < LISTING.minPhotos) {
-    return {
-      errors: {
-        photos: `Add at least ${LISTING.minPhotos} photos. You have ${photoPaths.length}.`,
-      },
-    }
-  }
-
-  if (photoPaths.length > LISTING.maxPhotos) {
-    return {
-      errors: { photos: `That is more than ${LISTING.maxPhotos} photos.` },
-    }
-  }
-
-  if (photoPaths.some((path) => !path.startsWith(`${host.id}/`))) {
-    return {
-      errors: {
-        photos: 'Those photos could not be verified. Remove them and add them again.',
-      },
-    }
-  }
-
-  // 3. Discriminatory advert screening. The one check that cannot be deferred.
+  // 3. Discriminatory advert screening.
+  //
+  //    Runs before the photo count, and the order is deliberate. It used to
+  //    run after, which meant a host who wrote a discriminatory advert but had
+  //    not finished adding photos was told about the photos and nothing else:
+  //    the wording was never screened and no blocklist_hits row was written.
+  //    That log is the evidence the screening works and the only source for
+  //    extending the list, so it must not depend on how far through the form
+  //    someone got.
   if (input.description) {
     const screening = checkText(input.description)
 
@@ -125,16 +103,46 @@ export async function createListing(
     }
   }
 
-  // 4. Address must resolve to a real building. Anti-fraud, per safety.md.
+  // 4. Photos. The files are already in Storage, uploaded by the browser, so
+  //    what arrives here is a list of object paths. None of it is trusted: the
+  //    count is re-checked, and every path must sit inside this host's own
+  //    folder. The Storage policy enforces the same prefix on write, so a
+  //    forged path could not have been uploaded, but a host could still post
+  //    one pointing at another host's object and claim their photos.
+  const photoPaths = parsePhotoPaths(formData.get('photoPaths'))
+
+  if (photoPaths.length < LISTING.minPhotos) {
+    return {
+      errors: {
+        photos: `Add at least ${LISTING.minPhotos} photos. You have ${photoPaths.length}.`,
+      },
+    }
+  }
+
+  if (photoPaths.length > LISTING.maxPhotos) {
+    return {
+      errors: { photos: `That is more than ${LISTING.maxPhotos} photos.` },
+    }
+  }
+
+  if (photoPaths.some((path) => !path.startsWith(`${host.id}/`))) {
+    return {
+      errors: {
+        photos: 'Those photos could not be verified. Remove them and add them again.',
+      },
+    }
+  }
+
+  // 5. Address must resolve to a real building. Anti-fraud, per safety.md.
   const geo = await geocodeAddress(input.addressLine, input.eircode)
   if (!geo.ok) {
     return { errors: { addressLine: geo.message } }
   }
 
-  // 5. Travel times. Null on failure rather than blocking the host.
+  // 6. Travel times. Null on failure rather than blocking the host.
   const travel = await travelTimesToCampus({ lat: geo.lat, lng: geo.lng })
 
-  // 6. Publish.
+  // 7. Publish.
   const { data: listing, error } = await supabase
     .from('listings')
     .insert({
@@ -175,7 +183,7 @@ export async function createListing(
     return { message: 'Could not save the listing. Try again shortly.' }
   }
 
-  // 7. Attach the photos. A listing with none breaks the rule the form just
+  // 8. Attach the photos. A listing with none breaks the rule the form just
   //    enforced, so if this fails the listing goes with it rather than being
   //    left published and empty.
   const { error: photoError } = await supabase.from('listing_photos').insert(
