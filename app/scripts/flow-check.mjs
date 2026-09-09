@@ -18,6 +18,16 @@ import { chromium } from 'playwright'
 const BASE = process.env.BASE_URL ?? 'http://localhost:3000'
 const MAILPIT = 'http://127.0.0.1:54324'
 
+/**
+ * A token unique to this run, mixed into anything written to the database.
+ *
+ * Waiting for text that a previous run already left on the page returns
+ * instantly, so the assertion reads the database before the new write lands
+ * and fails for reasons that have nothing to do with the code. Ask for
+ * something only this run could have produced.
+ */
+const RUN = Date.now().toString().slice(-6)
+
 const results = []
 const record = (name, ok, note = '') => {
   results.push({ name, ok, note })
@@ -72,6 +82,34 @@ console.log('\nAdmin')
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
   const page = await ctx.newPage()
   try {
+    // Give the queue something of this run's own to act on. Depending on
+    // leftovers means the check passes until the day someone has cleared the
+    // queue, and then reports a failure that is really an empty inbox.
+    const { createClient } = await import('@supabase/supabase-js')
+    const db = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    )
+    const { data: theHost } = await db
+      .from('hosts')
+      .select('id')
+      .eq('email', 'host@digs.test')
+      .single()
+    const { data: aListing } = await db
+      .from('listings')
+      .select('id')
+      .eq('host_id', theHost.id)
+      .limit(1)
+      .single()
+
+    await db.from('reports').insert({
+      host_id: theHost.id,
+      listing_id: aListing.id,
+      reason: 'already_gone',
+      details: `Room was taken weeks ago. Run ${RUN}`,
+      reporter_email: 'reporter@digs.test',
+    })
+
     await signIn(page, 'admin@digs.test', 'host')
     await page.goto(`${BASE}/admin`, { waitUntil: 'networkidle' })
 
@@ -93,17 +131,15 @@ console.log('\nAdmin')
     // Act on a report for real, and check the decision sticks.
     const reasonBox = page.locator('textarea[name="decisionReason"]').first()
     if (await reasonBox.count()) {
-      await reasonBox.fill('Checked with the host. The room is genuinely gone.')
+      const removedReason = `Checked with the host, the room is gone. Run ${RUN}`
+      await reasonBox.fill(removedReason)
       await page
         .locator('button[name="decision"][value="removed"]')
         .first()
         .click()
       // A Server Action is not a navigation, so waiting for the network to go
       // quiet proves nothing. Wait for the decision itself to appear.
-      await page
-        .locator('text=Checked with the host')
-        .first()
-        .waitFor({ timeout: 15000 })
+      await page.locator(`text=Run ${RUN}`).first().waitFor({ timeout: 15000 })
       record('A decision is recorded with its reason', true)
     } else {
       record('A decision is recorded with its reason', false, 'no open report')
@@ -324,6 +360,119 @@ console.log('\nReminder link')
   } catch (error) {
     record('Reminder link flow', false, error.message)
   }
+  await ctx.close()
+}
+
+// ------------------------------------------------- blocking, and undoing it
+
+console.log('\nBlocking a host')
+{
+  const { createClient } = await import('@supabase/supabase-js')
+  const db = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  )
+
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
+  const page = await ctx.newPage()
+
+  // Blocking pulls every listing the host has, so this runs last and puts the
+  // statuses back afterwards. A check that leaves the database unusable for
+  // the next run is a check people stop running.
+  const { data: before } = await db
+    .from('listings')
+    .select('id, status')
+    .eq('host_id', (await db.from('hosts').select('id').eq('email', 'host@digs.test').single()).data.id)
+
+  try {
+    await signIn(page, 'admin@digs.test', 'host')
+
+    // Give the queue something to act on.
+    const { data: host } = await db
+      .from('hosts')
+      .select('id, phone')
+      .eq('email', 'host@digs.test')
+      .single()
+
+    await db.from('reports').insert({
+      host_id: host.id,
+      listing_id: before[0].id,
+      reason: 'scam',
+      details: 'Asked for a deposit before any viewing.',
+    })
+
+    await page.goto(`${BASE}/admin/reports`, { waitUntil: 'networkidle' })
+    await page
+      .locator('textarea[name="decisionReason"]')
+      .first()
+      .fill(`Third report of the same deposit scam. Blocking. Block-${RUN}`)
+    await page
+      .locator('button[name="decision"][value="host_blocked"]')
+      .first()
+      .click()
+    // A distinct marker: the admin section above already left "Run <id>" on
+    // this page, so waiting for that would return before this decision lands.
+    await page.locator(`text=Block-${RUN}`).first().waitFor({ timeout: 15000 })
+
+    const { data: blocked } = await db
+      .from('hosts')
+      .select('blocked_at')
+      .eq('id', host.id)
+      .single()
+    const { data: phone } = await db
+      .from('blocked_phones')
+      .select('phone')
+      .eq('phone', host.phone)
+      .maybeSingle()
+
+    record('Blocking sets the flag and blocks the phone',
+      Boolean(blocked.blocked_at) && Boolean(phone))
+
+    const { data: pulled } = await db
+      .from('listings')
+      .select('status')
+      .eq('host_id', host.id)
+    record('Every listing they had comes down',
+      pulled.every((l) => l.status === 'removed'))
+
+    // The whole point of the page: the case is reviewable afterwards.
+    await page.goto(`${BASE}/admin/hosts/${host.id}`, { waitUntil: 'networkidle' })
+    const history = await page.content()
+    record('The history page shows why they were blocked',
+      /Blocked/.test(history) && history.includes(`Block-${RUN}`))
+    record('It shows what they tried to publish',
+      /Adverts refused/.test(history))
+    await page.screenshot({ path: '.ui-review/flow-host-history.png', fullPage: true })
+
+    await page.locator('textarea[name="note"]').fill('Appeal upheld — it was a different host.')
+    await page.locator('button:has-text("Unblock")').click()
+    await page.locator('text=Not blocked').first().waitFor({ timeout: 15000 })
+
+    const { data: after } = await db
+      .from('hosts')
+      .select('blocked_at')
+      .eq('id', host.id)
+      .single()
+    const { data: phoneAfter } = await db
+      .from('blocked_phones')
+      .select('phone')
+      .eq('phone', host.phone)
+      .maybeSingle()
+
+    record('Unblocking lifts the flag and the phone block',
+      after.blocked_at === null && phoneAfter === null)
+  } catch (error) {
+    record('Blocking flow', false, error.message)
+  }
+
+  // Put the listings back exactly as they were.
+  for (const listing of before ?? []) {
+    await db
+      .from('listings')
+      .update({ status: listing.status, removed_at: null, removed_reason: null })
+      .eq('id', listing.id)
+  }
+
   await ctx.close()
 }
 

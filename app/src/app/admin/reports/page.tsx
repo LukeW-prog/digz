@@ -33,6 +33,7 @@ export const dynamic = 'force-dynamic'
 type Report = {
   id: string
   listing_id: string | null
+  host_id: string | null
   reporter_email: string | null
   reason: ReportReason
   details: string | null
@@ -51,7 +52,7 @@ export default async function ReportsPage() {
   const { data } = await supabase
     .from('reports')
     .select(
-      'id, listing_id, reporter_email, reason, details, created_at, reviewed_at, decision, decision_reason',
+      'id, listing_id, host_id, reporter_email, reason, details, created_at, reviewed_at, decision, decision_reason',
     )
     .order('created_at', { ascending: false })
     .limit(100)
@@ -190,6 +191,14 @@ function ReportBody({ report }: { report: Report }) {
           </Link>
         ) : (
           'No listing attached'
+        )}
+        {report.host_id && (
+          <>
+            {' · '}
+            <Link href={`/admin/hosts/${report.host_id}`} className="underline">
+              This host&rsquo;s history
+            </Link>
+          </>
         )}
         {report.reporter_email
           ? ' · reporter left an address'

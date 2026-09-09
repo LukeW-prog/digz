@@ -63,6 +63,11 @@ export default async function AdminPage() {
           title="Blocklist hits"
           hint="What hosts tried to write. Read it to extend the list."
         />
+        <Row
+          href="/admin/hosts"
+          title="Hosts"
+          hint="Who is blocked, why, and how to undo it."
+        />
       </nav>
     </div>
   )
@@ -96,7 +101,7 @@ function Row({
   title,
   hint,
 }: {
-  href: '/admin/reports' | '/admin/blocklist'
+  href: '/admin/reports' | '/admin/blocklist' | '/admin/hosts'
   title: string
   hint: string
 }) {
