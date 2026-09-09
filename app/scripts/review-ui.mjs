@@ -23,12 +23,30 @@ const BASE = process.env.REVIEW_BASE_URL ?? 'http://localhost:3000'
 const OUT = '.ui-review'
 const DARK = process.argv.includes('--dark')
 
+/**
+ * A real listing id, found by asking the running site rather than hard coded.
+ *
+ * These used to be the sample-data ids, which quietly 404'd the moment the
+ * site was pointed at a real database — so the two most important pages in the
+ * review were being screenshotted as "not found" and counted as fine.
+ */
+async function findListingId() {
+  const html = await (await fetch(BASE)).text()
+  const match = html.match(/\/listing\/([a-zA-Z0-9-]+)/)
+  return match ? match[1] : null
+}
+
+const LISTING_ID = await findListingId()
+if (!LISTING_ID) {
+  console.error('No listing on the home page. Start the site with data first.')
+  process.exit(1)
+}
+
 const ROUTES = [
   ['home', '/'],
   ['home-filtered', '/?schedule=mon_fri&meals=1&maxWalk=20'],
   ['home-empty', '/?maxPrice=45'],
-  ['listing', '/listing/sample-1'],
-  ['listing-stale', '/listing/sample-4'],
+  ['listing', `/listing/${LISTING_ID}`],
   ['host-new', '/host/new'],
   ['report', '/report'],
   ['sign-in', '/sign-in'],
