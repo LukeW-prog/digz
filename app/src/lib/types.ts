@@ -30,6 +30,16 @@ export const REPORT_REASON = [
 ] as const
 export type ReportReason = (typeof REPORT_REASON)[number]
 
+/** What an admin may decide about a report. DSA Article 16 needs a reason too. */
+export const REPORT_DECISION = ['removed', 'kept', 'host_blocked'] as const
+export type ReportDecision = (typeof REPORT_DECISION)[number]
+
+export const REPORT_DECISION_LABEL: Record<ReportDecision, string> = {
+  removed: 'Take the listing down',
+  kept: 'Leave it up',
+  host_blocked: 'Block the host',
+}
+
 /** Labels shown to people. Kept next to the values so they cannot drift. */
 
 export const ROOM_TYPE_LABEL: Record<RoomType, string> = {

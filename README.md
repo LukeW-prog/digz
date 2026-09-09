@@ -98,6 +98,10 @@ All are things to add once search is good. None are reasons to exist.
 - `app/public/sample/` — development-only photos, and where they came from
 - `app/scripts/review-ui.mjs` — renders and audits every page; run it after any
   UI change and look at the screenshots
+- `app/src/lib/freshness.ts` — when a listing goes stale and when the host is asked
+- `app/src/lib/outcomes.ts` — the two-week "did you find a place?" check
+- `app/src/app/admin/` — reports queue and blocklist log. Gated by `ADMIN_EMAILS`;
+  an unset list admits nobody.
 
 ## Open before launch
 
