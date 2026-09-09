@@ -18,33 +18,44 @@
 */
 
 :root {
-  --paper: #f6f3ed;
-  --ink: #16130f;
-  --ink-soft: #5a534b;
-  --rule: rgba(22, 19, 15, 0.12);
-  --rule-strong: rgba(22, 19, 15, 0.24);
+  --paper: #fbf7ef;
+  --ink: #241a2e;
+  --ink-soft: #665a70;
+  --rule: rgba(36, 26, 46, 0.13);
+  --rule-strong: rgba(36, 26, 46, 0.26);
 
-  --accent: #14513f;
-  --accent-hover: #0d3a2c;
-  --accent-wash: rgba(20, 81, 63, 0.08);
   /*
-    Text sitting on the accent. It has to flip with the accent: dark mode
-    lightens the green, and white on light mint fails contrast badly.
+    Two colours, doing two different jobs.
+
+    Aubergine is the interactive colour: buttons, links, anything you can
+    press. Honey is the signature: fills, washes, the mark, the lit pane.
+
+    Honey never carries text and is never a button fill with light text on
+    it, because no yellow passes AA that way. It earns its place as a
+    surface with dark ink on top, which is also how it reads warmest.
   */
-  --on-accent: #ffffff;
+  --accent: #5b2b6b;
+  --accent-hover: #47204f;
+  --accent-wash: rgba(91, 43, 107, 0.09);
+  --on-accent: #fdf9f2;
 
-  --alert: #8a3813;
-  --alert-wash: rgba(184, 92, 40, 0.1);
-  --alert-rule: rgba(184, 92, 40, 0.35);
+  --signal: #f0ad1c;
+  --signal-deep: #a86f00;
+  --signal-wash: rgba(240, 173, 28, 0.2);
+  --on-signal: #241a2e;
 
-  --danger: #8c1d33;
-  --danger-wash: rgba(140, 29, 51, 0.08);
+  --alert: #9a3d0c;
+  --alert-wash: rgba(200, 96, 24, 0.12);
+  --alert-rule: rgba(200, 96, 24, 0.36);
+
+  --danger: #96122f;
+  --danger-wash: rgba(150, 18, 47, 0.09);
 
   /* The glass material. */
-  --glass-bg: rgba(255, 253, 250, 0.7);
-  --glass-bg-strong: rgba(246, 243, 237, 0.88);
-  --glass-edge: rgba(255, 255, 255, 0.7);
-  --glass-shade: rgba(22, 19, 15, 0.08);
+  --glass-bg: rgba(255, 252, 246, 0.7);
+  --glass-bg-strong: rgba(251, 247, 239, 0.9);
+  --glass-edge: rgba(255, 255, 255, 0.75);
+  --glass-shade: rgba(36, 26, 46, 0.09);
   --glass-blur: 40px;
 
   /*
@@ -52,9 +63,9 @@
     Faint values read as nothing once blurred, so these are deliberately
     stronger than they look sensible as flat colour.
   */
-  --wash-1: rgba(20, 81, 63, 0.2);
-  --wash-2: rgba(198, 132, 52, 0.18);
-  --wash-3: rgba(64, 96, 140, 0.12);
+  --wash-1: rgba(240, 173, 28, 0.3);
+  --wash-2: rgba(91, 43, 107, 0.17);
+  --wash-3: rgba(214, 122, 40, 0.15);
 
   /* Apple-ish deceleration: quick to leave, slow to settle. */
   --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
@@ -63,32 +74,39 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #100e0c;
-    --ink: #f4f0e8;
-    --ink-soft: #a49c90;
-    --rule: rgba(244, 240, 232, 0.14);
-    --rule-strong: rgba(244, 240, 232, 0.26);
+    --paper: #17111c;
+    --ink: #f4ecf6;
+    --ink-soft: #a99cb0;
+    --rule: rgba(244, 236, 246, 0.15);
+    --rule-strong: rgba(244, 236, 246, 0.28);
 
-    --accent: #74c1a4;
-    --accent-hover: #93d5bb;
-    --accent-wash: rgba(116, 193, 164, 0.12);
-    --on-accent: #0a1c16;
+    /* Both colours lift so they read on a dark ground, and the text that
+       sits on them flips to dark to keep contrast. */
+    --accent: #cd9fdb;
+    --accent-hover: #dfb9ea;
+    --accent-wash: rgba(205, 159, 219, 0.14);
+    --on-accent: #1c1024;
+
+    --signal: #f5c042;
+    --signal-deep: #f5c042;
+    --signal-wash: rgba(245, 192, 66, 0.16);
+    --on-signal: #241a2e;
 
     --alert: #eda877;
-    --alert-wash: rgba(237, 168, 119, 0.12);
-    --alert-rule: rgba(237, 168, 119, 0.32);
+    --alert-wash: rgba(237, 168, 119, 0.14);
+    --alert-rule: rgba(237, 168, 119, 0.34);
 
     --danger: #f0899e;
-    --danger-wash: rgba(240, 137, 158, 0.12);
+    --danger-wash: rgba(240, 137, 158, 0.14);
 
-    --glass-bg: rgba(38, 34, 30, 0.68);
-    --glass-bg-strong: rgba(20, 18, 16, 0.9);
-    --glass-edge: rgba(255, 255, 255, 0.12);
-    --glass-shade: rgba(0, 0, 0, 0.3);
+    --glass-bg: rgba(46, 36, 54, 0.68);
+    --glass-bg-strong: rgba(28, 21, 34, 0.9);
+    --glass-edge: rgba(255, 255, 255, 0.13);
+    --glass-shade: rgba(0, 0, 0, 0.34);
 
-    --wash-1: rgba(116, 193, 164, 0.16);
-    --wash-2: rgba(214, 160, 90, 0.12);
-    --wash-3: rgba(122, 156, 214, 0.1);
+    --wash-1: rgba(245, 192, 66, 0.16);
+    --wash-2: rgba(205, 159, 219, 0.14);
+    --wash-3: rgba(214, 122, 40, 0.1);
   }
 }
 
@@ -102,6 +120,10 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-wash: var(--accent-wash);
   --color-on-accent: var(--on-accent);
+  --color-signal: var(--signal);
+  --color-signal-deep: var(--signal-deep);
+  --color-signal-wash: var(--signal-wash);
+  --color-on-signal: var(--on-signal);
   --color-alert: var(--alert);
   --color-alert-wash: var(--alert-wash);
   --color-alert-rule: var(--alert-rule);

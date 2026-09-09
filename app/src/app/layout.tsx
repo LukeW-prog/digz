@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ViewTransition } from 'react'
 import { Archivo, Fraunces } from 'next/font/google'
+import { Mark } from '@/components/mark'
 import './globals.css'
 
 const fraunces = Fraunces({
@@ -49,10 +50,12 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             <div className="mx-auto flex max-w-6xl items-baseline justify-between gap-6 px-5 py-4 sm:px-8">
               <Link
                 href="/"
-                className="font-display text-2xl font-semibold tracking-tight transition-opacity duration-300 hover:opacity-70"
+                className="group flex items-center gap-2.5 transition-opacity duration-300 hover:opacity-75"
               >
-                Digs
-                <span className="text-accent">.</span>
+                <Mark className="size-6 shrink-0 self-center text-accent transition-transform duration-500 ease-[var(--ease-out)] group-hover:rotate-[-6deg]" />
+                <span className="font-display text-2xl font-semibold tracking-tight">
+                  Digs
+                </span>
               </Link>
 
               <nav className="flex items-baseline gap-6">

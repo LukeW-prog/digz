@@ -47,6 +47,11 @@ export function ListingCard({
         href={`/listing/${listing.id}`}
         className="relative block rounded-lg px-3 py-6 transition-transform duration-500 ease-[var(--ease-out)] group-hover:-translate-y-0.5 sm:px-4"
       >
+        {/* A honey rule slides in along the left edge on hover. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-4 left-0 w-[3px] origin-top scale-y-0 rounded-full bg-signal transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-y-100"
+        />
         {/* The glass arrives with the pointer rather than being always drawn. */}
         <span
           aria-hidden
@@ -111,17 +116,19 @@ export function ListingCard({
               obvious move and it was wrong: it made the warning the hardest
               text on the row to read, and it failed WCAG AA contrast.
             */}
-            <p
-              className={
-                freshness.stale
-                  ? 'mt-3 inline-block rounded-sm bg-alert-wash px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.07em] text-alert'
-                  : 'label mt-3'
-              }
-            >
-              {freshness.stale
-                ? `${freshness.text} — may be gone`
-                : freshness.text}
-            </p>
+            {freshness.stale ? (
+              <p className="mt-3 inline-block rounded-sm bg-alert-wash px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.07em] text-alert">
+                {freshness.text} — may be gone
+              </p>
+            ) : (
+              <p className="label mt-3 flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className="inline-block size-1.5 rounded-full bg-signal"
+                />
+                {freshness.text}
+              </p>
+            )}
           </div>
         </div>
       </Link>

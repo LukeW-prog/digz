@@ -11,11 +11,25 @@ export default async function SearchPage(props: PageProps<'/'>) {
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
       <header className="max-w-3xl">
-        <p className="label">Maynooth University</p>
+        <p className="label flex items-center gap-2">
+          <span aria-hidden className="inline-block size-1.5 rounded-full bg-signal" />
+          Maynooth University
+        </p>
         <h1 className="mt-4 font-display text-[2.75rem] leading-[0.95] font-semibold tracking-tight sm:text-6xl">
           A room in someone&rsquo;s
           <br />
-          house, near campus.
+          house,{' '}
+          {/*
+            The honey sits behind the words rather than under them, so the
+            brand colour is doing something rather than decorating an edge.
+          */}
+          <span className="relative inline-block">
+            <span
+              aria-hidden
+              className="absolute inset-x-[-0.12em] bottom-[0.06em] -z-10 h-[0.42em] rounded-[2px] bg-signal-wash"
+            />
+            near campus.
+          </span>
         </h1>
         <p className="mt-6 max-w-xl text-lg leading-relaxed text-soft">
           Monday to Friday or the full week. Walking time to campus on every
