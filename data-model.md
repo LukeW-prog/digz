@@ -266,4 +266,19 @@ Checked at signup. Blocks the number, not just the account.
 | Contact reveals | 12 months |
 | Blocked phones | Indefinite |
 
+Enforced nightly by `/api/cron/retention`, scheduled in `app/vercel.json`.
+Until that job existed this table was a published promise with nothing behind
+it, which is worse than having no policy: a privacy notice that says data is
+deleted, while it is not, is a stronger claim against you than silence.
+
+The job also deletes uploaded photos no listing references. A host who fills in
+the listing form and abandons it leaves objects in the bucket, and nothing else
+would ever find them. It ignores anything uploaded in the last 24 hours,
+because photos upload before the listing row is written — during those minutes
+a form still being filled in looks exactly like an abandoned one.
+
+For an aged-out listing the address columns are nulled rather than the row
+deleted, so it still counts towards how many listings there ever were without
+recording whose house it was.
+
 Write this into the privacy notice.

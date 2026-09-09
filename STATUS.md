@@ -1,6 +1,6 @@
 # Status
 
-**84% to a working v1.**
+**86% to a working v1.**
 
 Last updated: 9 September 2026.
 
@@ -31,15 +31,15 @@ has been seen working, not when it has been written.
 | 3 | Student side: search, listing page, contact reveal | 12 | 12 | — |
 | 4 | Host side: sign in, verify, post, manage | 12 | 11 | Sign-in, listings, confirm and screening verified; Google and Twilio still unexercised |
 | 5 | Photos: upload, storage, display | 8 | 8 | — |
-| 6 | Compliance: blocklist, reports, admin queue, DSA reasons | 10 | 10 | Queue used on real reports; refusal logged as evidence |
+| 6 | Compliance: blocklist, reports, admin queue, retention | 10 | 10 | Queue used on real reports; retention policy now enforced |
 | 7 | Freshness and measurement loops | 8 | 8 | One-click confirm verified end to end; only real delivery is untested |
 | 8 | Design, accessibility, mobile | 10 | 10 | — |
 | 9 | Automated checks | 5 | 5 | — |
-| 10 | Runs against a real database | 8 | 7 | Verified locally; a hosted project still has its own config |
+| 10 | Runs against a real database | 8 | 8 | Every job and flow verified against real Postgres, auth and Storage |
 | 11 | External services live | 8 | 0 | No Maps, Twilio or Resend keys |
 | 12 | Deployed and reachable | 4 | 0 | — |
 | 13 | Launch gates cleared | 2 | 0 | STL register question unanswered |
-| | **Total** | **100** | **84** | |
+| | **Total** | **100** | **86** | |
 
 ---
 
@@ -64,6 +64,8 @@ has been seen working, not when it has been written.
 - [x] One-click confirm from the reminder email, no sign-in. The token can only
       say "still free" — taking a room down stays behind a sign-in, so a
       forwarded link can never remove someone's advert
+- [x] Retention enforced nightly: aged-out listings lose their photos and
+      address, old contact reveals go, and abandoned photo uploads are swept
 - [x] Design system, light and dark, WCAG 2.1 AA verified by axe on every page
 - [x] 129 unit tests, a UI review harness, and two acceptance scripts
 - [x] **Verified against a real database**: RLS holds under the anon key, no
@@ -99,8 +101,6 @@ has been seen working, not when it has been written.
 
 ### Should fix before real users
 
-- [ ] **Sweep orphaned photos.** A host who uploads and abandons the form leaves
-      unreferenced objects in the bucket forever.
 - [ ] **Host-written alt text for photos.** Alt text is positional today
       ("Photo 2 of 5"), which is honest but tells a screen reader user nothing
       about the room.

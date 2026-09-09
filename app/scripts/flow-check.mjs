@@ -224,12 +224,24 @@ console.log('\nReminder link')
   const page = await ctx.newPage()
 
   try {
+    // Put a listing into the state the reminder is sent about, rather than
+    // hoping one is in it. Without this the check depends on run order: a
+    // listing confirmed by an earlier run shows the "already done" page, which
+    // has no button, and the failure looks like a bug in the page.
     const { data: showing } = await db
       .from('listings')
       .select('confirm_token')
       .in('status', ['live', 'stale'])
       .limit(1)
       .single()
+
+    await db
+      .from('listings')
+      .update({
+        status: 'stale',
+        last_confirmed_at: new Date(Date.now() - 8 * 86_400_000).toISOString(),
+      })
+      .eq('confirm_token', showing.confirm_token)
 
     await page.goto(`${BASE}/confirm/${showing.confirm_token}`, {
       waitUntil: 'networkidle',
