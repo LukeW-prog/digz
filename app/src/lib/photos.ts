@@ -47,8 +47,12 @@ export type PhotoRef = { storage_path: string }
  * URLs. That is a deliberate trade: signed URLs would expire, which is better
  * for privacy, but it costs an API round trip on every search render and the
  * links break in a shared or cached page. The mitigation is that object paths
- * are random UUIDs, so they cannot be guessed or enumerated, and the objects
- * are deleted when the listing is. See data-model.md on retention.
+ * are random UUIDs, so they cannot be guessed or enumerated.
+ *
+ * Be precise about the rest: objects are not deleted the moment a listing goes.
+ * They are deleted a year after it is removed or expires, by the nightly job in
+ * api/cron/retention, along with the address. Until then a URL somebody already
+ * has keeps working. See the retention table in data-model.md.
  */
 export function photoUrl(storagePath: string): string {
   if (storagePath.startsWith('/')) return storagePath

@@ -144,12 +144,14 @@ host's photos by posting their paths.
 The bucket is public rather than signed. Signed URLs would expire, which is
 better for privacy, but they cost a signing round trip on every search render
 and break in a cached or shared page. The mitigations are that paths are random
-uuids, so they cannot be guessed or enumerated, and that objects are deleted
-with their listing.
+uuids, so they cannot be guessed or enumerated.
 
-Known gap: a host who uploads photos and then abandons the form leaves
-unreferenced objects behind. They are invisible and cost only storage. Sweeping
-them is a scheduled job that is not built yet.
+Be precise about the rest: objects are not deleted the moment a listing goes.
+They are deleted a year after it is removed or expires, by `/api/cron/retention`
+below. Until then a URL somebody already has keeps working, which is the real
+cost of choosing a public bucket over signed links.
+
+Photos left behind by an abandoned listing form are swept by the same job.
 
 ## `contact_reveals`
 
