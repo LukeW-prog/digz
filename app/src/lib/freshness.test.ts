@@ -131,6 +131,7 @@ describe('promptEmail', () => {
     areaLabel: 'Maynooth',
     roomLabel: 'Single room',
     siteUrl: 'https://digs.ie',
+    confirmToken: 'tok-abc',
   }
 
   it('asks a question while the listing is still showing normally', () => {
@@ -152,14 +153,25 @@ describe('promptEmail', () => {
     expect(mail.text).not.toContain('1 days')
   })
 
-  it('links to the host page and never trails a double slash', () => {
+  it('carries a one-click confirm link and never trails a double slash', () => {
     const mail = promptEmail({
       ...base,
       siteUrl: 'https://digs.ie/',
       daysSinceConfirmed: 6,
       stale: false,
     })
-    expect(mail.text).toContain('https://digs.ie/host/listings')
+    expect(mail.text).toContain('https://digs.ie/confirm/tok-abc')
     expect(mail.text).not.toContain('digs.ie//')
+  })
+
+  // The asymmetry is the safety property: a forwarded link can say "still
+  // free" but can never remove someone's advert. If confirming ever stops
+  // being the only tokenised action, this is what should fail.
+  it('offers one-click confirm but sends taking down behind a sign-in', () => {
+    const mail = promptEmail({ ...base, daysSinceConfirmed: 6, stale: false })
+    expect(mail.text).toContain('No sign-in')
+    expect(mail.text).toContain('https://digs.ie/confirm/tok-abc')
+    expect(mail.text).toContain('sign in and take it down')
+    expect(mail.text).toContain('https://digs.ie/host/listings')
   })
 })

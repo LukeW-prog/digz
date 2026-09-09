@@ -210,6 +210,77 @@ console.log('\nStudent')
   await ctx.close()
 }
 
+// ------------------------------------------------- one-click confirm by email
+
+console.log('\nReminder link')
+{
+  const { createClient } = await import('@supabase/supabase-js')
+  const db = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  )
+
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
+  const page = await ctx.newPage()
+
+  try {
+    const { data: showing } = await db
+      .from('listings')
+      .select('confirm_token')
+      .in('status', ['live', 'stale'])
+      .limit(1)
+      .single()
+
+    await page.goto(`${BASE}/confirm/${showing.confirm_token}`, {
+      waitUntil: 'networkidle',
+    })
+    const asked = await page.content()
+    record('The reminder link asks without a sign-in', /still free\?/i.test(asked))
+
+    await page.locator('button[type="submit"]').first().click()
+    await page.locator('text=that is confirmed').first().waitFor({ timeout: 15000 })
+
+    const { data: after } = await db
+      .from('listings')
+      .select('status, last_confirmed_at')
+      .eq('confirm_token', showing.confirm_token)
+      .single()
+
+    record('One click really resets the clock', after.status === 'live' &&
+      after.last_confirmed_at.slice(0, 10) === new Date().toISOString().slice(0, 10))
+
+    // The link must not resurrect something already taken down. An old email
+    // sitting in an inbox cannot undo a host's or an admin's decision.
+    const { data: gone } = await db
+      .from('listings')
+      .select('confirm_token')
+      .in('status', ['expired', 'removed'])
+      .limit(1)
+      .maybeSingle()
+
+    if (gone) {
+      await page.goto(`${BASE}/confirm/${gone.confirm_token}`, {
+        waitUntil: 'networkidle',
+      })
+      const body = await page.content()
+      const noButton = (await page.locator('button[type="submit"]').count()) === 0
+      record(
+        'An old link cannot revive a listing that is off the site',
+        /off the site/i.test(body) && noButton,
+      )
+    } else {
+      record('An old link cannot revive a listing that is off the site', false,
+        'no expired listing to test with')
+    }
+
+    const res = await page.goto(`${BASE}/confirm/11111111-2222-3333-4444-555555555555`)
+    record('An unknown token reveals nothing', res.status() === 404)
+  } catch (error) {
+    record('Reminder link flow', false, error.message)
+  }
+  await ctx.close()
+}
+
 await browser.close()
 
 const failed = results.filter((r) => !r.ok)

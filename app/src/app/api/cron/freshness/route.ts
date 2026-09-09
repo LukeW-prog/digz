@@ -29,6 +29,7 @@ export const maxDuration = 60
 type Row = SweepRow & {
   area_label: string
   room_type: RoomType
+  confirm_token: string
   hosts: { display_name: string; email: string } | null
 }
 
@@ -50,7 +51,7 @@ export async function GET(request: Request) {
   const { data, error } = await supabase
     .from('listings')
     .select(
-      'id, status, last_confirmed_at, last_prompted_at, area_label, room_type, hosts (display_name, email)',
+      'id, status, last_confirmed_at, last_prompted_at, area_label, room_type, confirm_token, hosts (display_name, email)',
     )
     .in('status', ['live', 'stale'])
 
@@ -100,6 +101,7 @@ export async function GET(request: Request) {
       daysSinceConfirmed: days,
       stale: days >= FRESHNESS.staleAfterDays || action!.nextStatus === 'stale',
       siteUrl,
+      confirmToken: row.confirm_token,
     })
 
     const result = await sendEmail({ to: row.hosts.email, subject, text })

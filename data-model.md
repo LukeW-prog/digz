@@ -77,6 +77,7 @@ Only needed to reveal a host's contact. Browsing needs no account.
 | last_confirmed_at | timestamptz | Shown publicly. Set on create, then by weekly email click. |
 | expires_at | timestamptz | `last_confirmed_at + 14 days` |
 | last_prompted_at | timestamptz, null | Last reminder sent. Null means never asked. Compared against `last_confirmed_at`, so confirming resets the cycle with no extra write. |
+| confirm_token | uuid | Unguessable id in the reminder email. Grants only "this room is still free", for this one listing. |
 | removed_at | timestamptz | |
 | removed_reason | text | Admin note |
 
@@ -100,7 +101,21 @@ running it twice, or once after an outage, gives the same result. The rules
 are in `app/src/lib/freshness.ts` and are unit tested across a full lapse.
 
 Confirmation from the weekly email resets `last_confirmed_at` and moves
-`stale` back to `live`.
+`stale` back to `live`. The host does it in one click at `/confirm/<token>`
+with no sign-in, because every step between the email and the answer costs
+confirmations, and the confirmation rate is the only thing that makes
+"confirmed yesterday" worth showing.
+
+What the token can do is deliberately narrow. It marks one listing still
+available and nothing else — it cannot take a listing down, edit it, or reveal
+anything. A leaked confirm link can at worst keep a room showing that should
+have aged out, which is the ordinary failure the system already tolerates for
+two weeks; a link that could remove a listing would let a stranger delete a
+host's advert. So taking a room down stays behind a sign-in. The button is a
+POST for the same reason the outcome page is: mail scanners follow links, and a
+GET would let a security appliance confirm rooms on the host's behalf.
+
+An expired or removed listing cannot be revived by an old link in an inbox.
 
 ## `listing_photos`
 

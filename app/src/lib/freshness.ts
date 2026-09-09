@@ -91,9 +91,14 @@ export function promptEmail(input: {
   daysSinceConfirmed: number
   stale: boolean
   siteUrl: string
+  confirmToken: string
 }): { subject: string; text: string } {
   const { displayName, areaLabel, roomLabel, daysSinceConfirmed, stale } = input
-  const link = `${input.siteUrl.replace(/\/$/, '')}/host/listings`
+  const site = input.siteUrl.replace(/\/$/, '')
+
+  // One click, no sign-in. See 0005_confirm_tokens.sql for what the token can
+  // and cannot do, and why taking a room down is deliberately not one of them.
+  const link = `${site}/confirm/${input.confirmToken}`
   const daysLeft = FRESHNESS.expiresAfterDays - daysSinceConfirmed
 
   const subject = stale
@@ -116,12 +121,13 @@ export function promptEmail(input: {
       '',
       state,
       '',
-      'One click either way:',
+      'If it is still free, one click and you are done. No sign-in:',
       link,
       '',
       deadline,
       '',
-      'If it is taken, take it down there too. That is more useful to students than leaving it up, and it is the whole point of the site.',
+      `If it is taken, sign in and take it down: ${site}/host/listings`,
+      'That is more useful to students than leaving it up, and it is the whole point of the site.',
       '',
       'Digs',
     ].join('\n'),
